@@ -16,6 +16,7 @@ background=pygame.image.load('asset/bg_brouillon.jpg')
 game = Game()
 running = True
 
+
 while running:
 
     #appliquer la fenetre de jeu
