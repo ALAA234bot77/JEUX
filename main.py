@@ -25,11 +25,11 @@ while running:
     screen.blit(game.player.image, game.player.rect)
 
     #verifier si on va gauche ou droite:
-    if game.pressed.get(pygame.K_RIGHT) and game.player.rect.x < 645:
+    if game.pressed.get(pygame.K_RIGHT) and game.player.rect.x < 870:
         game.player.move_right()
-    if game.pressed.get(pygame.K_LEFT) and game.player.rect.x > 182:
+    if game.pressed.get(pygame.K_LEFT) and game.player.rect.x > 192:
         game.player.move_left()
-
+    print(game.player.rect.x,game.player.rect.y)
 
     pygame.display.flip()
 
