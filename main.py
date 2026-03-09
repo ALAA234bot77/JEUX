@@ -3,7 +3,8 @@ from game import Game
 """This is the main program"""
 pygame.init()
 
-
+clock = pygame.time.Clock()
+clock.tick(60)
 
 
 #generer notre ecran
@@ -31,7 +32,7 @@ while running:
     if game.pressed.get(pygame.K_LEFT) and game.player.rect.x > 192:
         game.player.move_left()
 
-
+    game.player.apply_gravity()
     pygame.display.flip()
 
     for event in pygame.event.get():
@@ -43,5 +44,11 @@ while running:
         #decter si le jouer lache une touch
         elif event.type == pygame.KEYDOWN:#quel touche etait appuile
             game.pressed[event.key] = True
+
+            if event.key == pygame.K_SPACE:
+                game.player.jump()
+
         elif event.type == pygame.KEYUP:
             game.pressed[event.key] = False
+
+    clock.tick(60)
