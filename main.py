@@ -29,8 +29,11 @@ while running:
     #verifier si on va gauche ou droite:
     if game.pressed.get(pygame.K_RIGHT) and game.player.rect.x < 870:
         game.player.move_right()
-    if game.pressed.get(pygame.K_LEFT) and game.player.rect.x > 192:
+    if game.pressed.get(pygame.K_LEFT) and game.player.rect.x > 195:
         game.player.move_left()
+
+    if game.pressed.get(pygame.K_SPACE):
+        game.player.jump()
 
     game.player.apply_gravity()
     pygame.display.flip()
@@ -45,8 +48,7 @@ while running:
         elif event.type == pygame.KEYDOWN:#quel touche etait appuile
             game.pressed[event.key] = True
 
-            if event.key == pygame.K_SPACE:
-                game.player.jump()
+
 
         elif event.type == pygame.KEYUP:
             game.pressed[event.key] = False
