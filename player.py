@@ -8,9 +8,10 @@ class Player(pygame.sprite.Sprite):
         self.max_health = 3
         self.velocity = 1
         self.image = pygame.image.load('asset/perso_67.webp')
+        self.image = pygame.transform.scale(self.image, (150, 150))
         self.rect = self.image.get_rect()
-        self.rect.x = 300
-        self.rect.y =300
+        self.rect.x = 515
+        self.rect.y =540
 
 
     def move_right(self):
