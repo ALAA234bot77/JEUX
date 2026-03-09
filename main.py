@@ -16,6 +16,7 @@ background=pygame.image.load('asset/bg_brouillon.jpg')
 game = Game()
 running = True
 
+
 while running:
 
     #appliquer la fenetre de jeu
@@ -34,6 +35,7 @@ while running:
     pygame.display.flip()
 
     for event in pygame.event.get():
+
         if event.type == pygame.QUIT:
             running = False
             pygame.quit()
@@ -43,5 +45,3 @@ while running:
             game.pressed[event.key] = True
         elif event.type == pygame.KEYUP:
             game.pressed[event.key] = False
-
-
