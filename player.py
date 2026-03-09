@@ -6,7 +6,7 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
         self.health = 3
         self.max_health = 3
-        self.velocity = 1
+        self.velocity = 2
         self.image = pygame.image.load('asset/perso_67.webp')
         self.image = pygame.transform.scale(self.image, (150, 150))
         self.rect = self.image.get_rect()
