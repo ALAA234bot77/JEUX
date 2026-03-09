@@ -29,7 +29,7 @@ while running:
         game.player.move_right()
     if game.pressed.get(pygame.K_LEFT) and game.player.rect.x > 192:
         game.player.move_left()
-    print(game.player.rect.x,game.player.rect.y)
+
 
     pygame.display.flip()
 
