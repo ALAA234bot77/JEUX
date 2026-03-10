@@ -29,12 +29,12 @@ while running:
     screen.blit(game.player.image, game.player.rect)
 
     #verifier si on va gauche ou droite:
-    if game.pressed.get(pygame.K_RIGHT) and game.player.rect.x < 950:
+    if game.pressed.get(ord('d')) and game.player.rect.x < 950:
         game.player.move_right()
-    if game.pressed.get(pygame.K_LEFT) and game.player.rect.x > 0:
+    if game.pressed.get(ord('q')) and game.player.rect.x > 0:
         game.player.move_left()
 
-    if game.pressed.get(pygame.K_SPACE):
+    if game.pressed.get(pygame.K_SPACE) or game.pressed.get(ord('s')):
         game.player.jump()
 
     game.player.apply_gravity()
