@@ -12,6 +12,7 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = 515
         self.rect.y =690
+        self.damage = True
 
 
         self.gravity= 0.5
