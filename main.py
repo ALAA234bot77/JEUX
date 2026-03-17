@@ -24,6 +24,15 @@ while running:
 
     #appliquer la fenetre de jeu
     screen.blit(background,(0,0))
+    game.update_camera()
+    game.update_trash_visibility()
+    for trash in game.visible_trash:
+        screen_x = trash.rect.x - game.camera_x
+        screen.blit(trash.image, (screen_x, trash.rect.y))
+    font = pygame.font.SysFont(None, 40)
+    score_text = font.render(f"Score: {game.score}", True, (255, 255, 255))
+    screen.blit(score_text, (10, 10))
+
 
     #appliquer l'image du joueur
     screen.blit(game.player.image, game.player.rect)
