@@ -6,6 +6,7 @@ from trash import Trash
 class Game:
 
     def __init__(self):
+        self.carrying = False 
         self.player = Player()
         self.pressed={}
         self.score=0
@@ -27,9 +28,11 @@ class Game:
             if -50 < screen_x < 1130:
                 if trash not in self.visible_trash:
                     self.visible_trash.append(trash)
+
             adjusted_rect = trash.rect.move(-self.camera_x, 0)
             if adjusted_rect.colliderect(self.player.rect):
-                self.all_trash.remove(trash)
-                if trash in self.visible_trash:
-                    self.visible_trash.remove(trash)
-                self.score += 1
+                if not self.carrying:  # seulement si les mains sont vides !
+                    self.all_trash.remove(trash)
+                    if trash in self.visible_trash:
+                        self.visible_trash.remove(trash)
+                    self.carrying = True
