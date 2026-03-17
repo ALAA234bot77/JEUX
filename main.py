@@ -12,7 +12,7 @@ pygame.display.set_caption("Trash Cat 67")
 screen = pygame.display.set_mode((SCREEN_W, SCREEN_H))
 
 # ── WORLD SETTINGS (just change these two numbers to resize later) ──
-COLS = 0
+COLS = 3
 ROWS = 3
 CELL_W = 1080
 CELL_H = 720
