@@ -1,11 +1,11 @@
 import pygame
 from game import Game
+
 """This is the main program"""
 pygame.init()
 
 clock = pygame.time.Clock()
 clock.tick(60)
-
 
 #generer notre ecran
 pygame.display.set_caption("Trash Cat 67")
@@ -24,15 +24,31 @@ while running:
 
     #appliquer la fenetre de jeu
     screen.blit(background,(0,0))
+
+    # mettre à jour caméra et déchets
     game.update_camera()
     game.update_trash_visibility()
+
+    # afficher les poubelles
+    for bin in game.all_bins:
+        bin_screen_x = bin.rect.x - game.camera_x
+        screen.blit(bin.image, (bin_screen_x, bin.rect.y))
+
+    # afficher les déchets
     for trash in game.visible_trash:
         screen_x = trash.rect.x - game.camera_x
         screen.blit(trash.image, (screen_x, trash.rect.y))
+
+    # afficher score, vies et déchet porté
     font = pygame.font.SysFont(None, 40)
     score_text = font.render(f"Score: {game.score}", True, (255, 255, 255))
+    lives_text = font.render(f"Vies: {game.lives}", True, (255, 0, 0))
     screen.blit(score_text, (10, 10))
+    screen.blit(lives_text, (10, 50))
 
+    if game.carrying:
+        carry_text = font.render(f"Tu portes : {game.carried_trash_type}", True, (255, 255, 0))
+        screen.blit(carry_text, (10, 90))
 
     #appliquer l'image du joueur
     screen.blit(game.player.image, game.player.rect)
@@ -55,11 +71,10 @@ while running:
             running = False
             pygame.quit()
 
-        #decter si le jouer lache une touch
-        elif event.type == pygame.KEYDOWN:#quel touche etait appuile
+        elif event.type == pygame.KEYDOWN:
             game.pressed[event.key] = True
-
-
+            if event.key == ord('f'):
+                game.throw_trash()
 
         elif event.type == pygame.KEYUP:
             game.pressed[event.key] = False
