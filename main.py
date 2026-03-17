@@ -1,5 +1,5 @@
 import pygame
-from game import Game
+from classes.game import Game
 
 """This is the main program"""
 pygame.init()
@@ -11,66 +11,7 @@ clock.tick(60)
 pygame.display.set_caption("Trash Cat 67")
 screen = pygame.display.set_mode((1080,720))
 background_img=pygame.image.load('asset/bg_brouillon.jpg')
-background= pygame.transform.scale(background_img,(1080,720)) #change the size of the background to size of screen
-
-# import the background
-
-#charger le jeux
-game = Game()
-running = True
-
-
-while running:
-
-    #appliquer la fenetre de jeu
-    screen.blit(background,(0,0))
-
-    # mettre à jour caméra et déchets
-    game.update_camera()
-    game.update_trash_visibility()
-
-    # afficher les poubelles
-    for bin in game.all_bins:
-        bin_screen_x = bin.rect.x - game.camera_x
-        screen.blit(bin.image, (bin_screen_x, bin.rect.y))
-
-    # afficher les déchets
-    for trash in game.visible_trash:
-        screen_x = trash.rect.x - game.camera_x
-        screen.blit(trash.image, (screen_x, trash.rect.y))
-
-    # afficher score, vies et déchet porté
-    font = pygame.font.SysFont(None, 40)
-    score_text = font.render(f"Score: {game.score}", True, (255, 255, 255))
-    lives_text = font.render(f"Vies: {game.lives}", True, (255, 0, 0))
-    screen.blit(score_text, (10, 10))
-    screen.blit(lives_text, (10, 50))
-
-    if game.carrying:
-        carry_text = font.render(f"Tu portes : {game.carried_trash_type}", True, (255, 255, 0))
-        screen.blit(carry_text, (10, 90))
-
-    #appliquer l'image du joueur
-    screen.blit(game.player.image, game.player.rect)
-
-    #verifier si on va gauche ou droite:
-    if game.pressed.get(ord('d')) and game.player.rect.x < 950:
-        game.player.move_right()
-    if game.pressed.get(ord('q')) and game.player.rect.x > 0:
-        game.player.move_left()
-
-    if game.pressed.get(pygame.K_SPACE) or game.pressed.get(ord('s')):
-        game.player.jump()
-
-    game.player.apply_gravity()
-    pygame.display.flip()
-
-    for event in pygame.event.get():
-
-        if event.type == pygame.QUIT:
-            running = False
-            pygame.quit()
-
+back
         elif event.type == pygame.KEYDOWN:
             game.pressed[event.key] = True
             if event.key == ord('f'):
