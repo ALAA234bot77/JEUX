@@ -1,6 +1,8 @@
 from classes.player import Player
 from classes.trash import Trash
 from classes.bin import Bin
+from birdenemy import Bird
+import pygame
 
 #create a class to represent our game
 class Game:
@@ -18,6 +20,15 @@ class Game:
         self.all_trash = self.create_trash()
         self.all_bins = self.create_bins()
         self.visible_trash = []
+
+
+
+        self.flock = pygame.sprite.Group()
+        self.bird_spawn()
+
+    def bird_spawn(self):
+        bird = Bird()
+        self.flock.add(bird)
 
     def update_camera(self):
         self.camera_x = self.player.rect.x - 400

@@ -7,6 +7,15 @@ pygame.init()
 clock = pygame.time.Clock()
 clock.tick(60)
 
+# fonction spawn oiseau (instable)
+"""game.flock.draw(screen)
+    for bird in game.flock:
+        if bird.rect.x < 700:
+            bird.forward()
+        elif bird.rect.x > 700:
+            while bird.rect.x > 0:
+                bird.backward()"""
+
 #generer notre ecran
 pygame.display.set_caption("Trash Cat 67")
 screen = pygame.display.set_mode((1080,720))
