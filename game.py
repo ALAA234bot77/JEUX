@@ -1,4 +1,4 @@
-from classes.player import Player
+"""from classes.player import Player
 from classes.trash import Trash
 from classes.bin import Bin
 from birdenemy import Bird
@@ -47,10 +47,5 @@ class Game:
                     if trash in self.visible_trash:
                         self.visible_trash.remove(trash)
                     self.carrying = True
-                    self.carried_trash_type = trash.trash_type
+                    self.carried_trash_type = trash.trash_type"""
 
-    def create_trash(self):
-        if self.level == 1:
-            return [
-                Trash(800, "recyclable"),
-                Tras
