@@ -1,4 +1,5 @@
-"""from classes.player import Player
+from classes.platform import Platform
+from classes.player import Player
 from classes.trash import Trash
 from classes.bin import Bin
 from birdenemy import Bird
@@ -8,7 +9,7 @@ import pygame
 class Game:
 
     def __init__(self):
-        self.player = Player()
+        self.player = Player(self)
         self.pressed = {}
         self.score = 0
         self.lives = 3
@@ -22,9 +23,20 @@ class Game:
         self.visible_trash = []
 
 
+    def check_collisions(self, sprite, group):
+        return pygame.sprite.spritecollide(sprite, group, False, pygame.sprite.collide_mask)
+
+
 
         self.flock = pygame.sprite.Group()
         self.bird_spawn()
+
+        self.platforms = pygame.sprite.Group()
+        self.platform_spawn()
+
+    def platform_spawn(self):
+        plat = Platform()
+        self.platforms.add(plat)
 
     def bird_spawn(self):
         bird = Bird()
@@ -47,5 +59,5 @@ class Game:
                     if trash in self.visible_trash:
                         self.visible_trash.remove(trash)
                     self.carrying = True
-                    self.carried_trash_type = trash.trash_type"""
+                    self.carried_trash_type = trash.trash_type
 

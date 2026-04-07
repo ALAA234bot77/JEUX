@@ -15,6 +15,9 @@ class Bird(pygame.sprite.Sprite):
         self.rect.x = int(self.world_x)
         self.rect.y = int(self.world_y)
 
+        """if self.player.game.check_collisions(self, self.player.game.flock):
+            self.damage()"""
+
     def move_right(self):
         self.world_x += self.velocity
 
@@ -24,4 +27,5 @@ class Bird(pygame.sprite.Sprite):
     def sync_rect(self, camera_x=0, camera_y=0):
         self.rect.x = int(self.world_x - camera_x)
         self.rect.y = int(self.world_y - camera_y)
+
 

@@ -19,6 +19,25 @@ class Player(pygame.sprite.Sprite):
         self.world_x = 515
         self.world_y = 2 * 720 + 540  # near bottom of bottom row
 
+        def __init__(self, game):
+            self.game = game
+
+            self.health_image = pygame.image.load('asset/3_heart.png')
+
+            def damage(self):
+                self.health -= 1
+
+            def update_health_bar(self):
+                if self.health == 3:
+                    self.health_image = pygame.image.load('asset/3_hearts.png')
+                elif self.health == 2:
+                    self.health_image = pygame.image.load('asset/2_hearts.png')
+                elif self.health == 1:
+                    self.health_image = pygame.image.load('asset/1_heart.png')
+                else:
+                    self.health_image = pygame.image.load('asset/0_heart.png')
+
+
     def move_right(self):
         self.world_x += self.velocity
 

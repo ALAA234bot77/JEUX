@@ -30,6 +30,12 @@ camera_x = 0
 camera_y = 0
 
 while running:
+
+    # ---------- fonction spawn platform ----------------
+    game.platforms.draw(screen)
+    self.rect.x = 350
+    self.rect.y = 150
+
     # -------- Event handling --------
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
