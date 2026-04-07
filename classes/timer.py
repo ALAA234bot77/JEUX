@@ -4,7 +4,7 @@ class Timer:
     Gère un timer de compte à rebours et
      la pause,le restart et détecte la fin du temps.
     """
-
+    #
     def __init__(self, total_seconds=300):
         # Durée du timer en secondes 5 min = 300s
         # Duration of the timer 5 min = 300s
@@ -172,17 +172,17 @@ class Timer:
 
         # texte "PAUSE" centré
         pause_txt = self.font_big.render("PAUSE", True, (115, 170, 186))#message pause couleur
-        pause_rect = pause_txt.get_rect((w // 2, h // 2 - 50))#met au centre
+        pause_rect = pause_txt.get_rect(center = (w // 2, h // 2 - 50))#met au centre
         screen.blit(pause_txt, pause_rect)
 
         # Sous-titre
         sub_txt = self.font_sub.render("Press C to continue", True, (59, 113, 128))#messsage sous titre couleur
-        sub_rect = sub_txt.get_rect((w // 2, h // 2 + 30))
+        sub_rect = sub_txt.get_rect(center = (w // 2, h // 2 + 30))
         screen.blit(sub_txt, sub_rect)
 
     #fonction affichage game over
     #function display
-    def draw_game_over_overlay(self, screen):
+    def display_game_over(self, screen):
         """
         affiche l'écran de fin de partie avec option de rejouer.
 
@@ -200,12 +200,12 @@ class Timer:
 
         # affiche "GAME OVER" en rouge
         go_txt = self.font_big.render("GAME OVER", True, (143, 25, 21))#texte game over rouge
-        go_rect = go_txt.get_rect((w // 2, h // 2 - 80))
+        go_rect = go_txt.get_rect(center = (w // 2, h // 2 - 80))
         screen.blit(go_txt, go_rect)#affiche le texte go_txt à la place go_rect
 
         # sous titresub tiltle
         sub_txt = self.font_sub.render("Time is over!", True, (200, 200, 200))
-        sub_rect = sub_txt.get_rect((w // 2, h // 2))
+        sub_rect = sub_txt.get_rect(center = (w // 2, h // 2))
         screen.blit(sub_txt, sub_rect)
 
         #Rajouter texte si toutes les vies sont perdues
@@ -213,7 +213,7 @@ class Timer:
 
         # recommencer/restart
         replay_txt = self.font_sub.render("Press R to restart", True, (59, 113, 128))
-        replay_rect = replay_txt.get_rect((w // 2, h // 2 + 60))
+        replay_rect = replay_txt.get_rect(center = (w // 2, h // 2 + 60))
         screen.blit(replay_txt, replay_rect)
 
 
