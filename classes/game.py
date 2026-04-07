@@ -1,5 +1,5 @@
 
-from player import Player
+
 from classes.player import Player
 from classes.trash import Trash
 from classes.bin import Bin
@@ -17,7 +17,7 @@ class Game:
         self.level = 1
         self.carrying = False
         self.carried_trash_type = None
-        self.camera_x = 0
+
 
         self.all_trash = self.create_trash()
         self.all_bins = self.create_bins()
@@ -26,24 +26,10 @@ class Game:
         self.flock = pygame.sprite.Group()
         self.bird_spawn()
 
-    def update_camera(self):
-        self.camera_x = self.player.rect.x - 400
 
-    def update_trash_visibility(self):
-        for trash in self.all_trash[:]:
-            screen_x = trash.rect.x - self.camera_x
-            if -50 < screen_x < 1130:
-                if trash not in self.visible_trash:
-                    self.visible_trash.append(trash)
 
-            adjusted_rect = trash.rect.move(-self.camera_x, 0)
-            if adjusted_rect.colliderect(self.player.rect):
-                if not self.carrying:
-                    self.all_trash.remove(trash)
-                    if trash in self.visible_trash:
-                        self.visible_trash.remove(trash)
-                    self.carrying = True
-                    self.carried_trash_type = trash.trash_type
+
+
 
     def create_trash(self):
         if self.level == 1:
@@ -109,24 +95,65 @@ class Game:
                     return
 
     def bird_spawn(self):
-        bird = Bird()
+        bird = Bird(x=1400, y=200, velocity=4)
         self.flock.add(bird)
 
-    def update_camera(self):
-        self.camera_x = self.player.rect.x - 400
 
-    def update_trash_visibility(self):
+def update_trash_visibility(self, camera_x, screen_w=1080):
+    """
+    Keep only trash that is close enough to appear on screen.
+    camera_x comes from main, because main owns the camera.
+    """
+    self.visible_trash = []
+
+    for trash in self.all_trash:
+        screen_x = trash.rect.x - camera_x
+        if -50 < screen_x < screen_w + 50:
+            self.visible_trash.append(trash)
+
+    def try_pickup_trash(self):
+        """
+        Pickup should be checked in world space.
+        This assumes:
+        - trash.rect.x / trash.rect.y are world positions
+        - player.world_x / player.world_y are the real player positions
+        """
+        if self.carrying:
+            return
+
+        player_world_rect = self.player.rect.copy()
+        player_world_rect.centerx = int(self.player.world_x)
+        player_world_rect.bottom = int(self.player.world_y)
+
         for trash in self.all_trash[:]:
-            screen_x = trash.rect.x - self.camera_x
-            if -50 < screen_x < 1130:
-                if trash not in self.visible_trash:
-                    self.visible_trash.append(trash)
+            if trash.rect.colliderect(player_world_rect):
+                self.all_trash.remove(trash)
+                if trash in self.visible_trash:
+                    self.visible_trash.remove(trash)
+                self.carrying = True
+                self.carried_trash_type = trash.trash_type
+                return
 
-            adjusted_rect = trash.rect.move(-self.camera_x, 0)
-            if adjusted_rect.colliderect(self.player.rect):
-                if not self.carrying:
-                    self.all_trash.remove(trash)
-                    if trash in self.visible_trash:
-                        self.visible_trash.remove(trash)
-                    self.carrying = True
-                    self.carried_trash_type = trash.trash_type
+    def throw_trash(self):
+        """
+        Throwing must also be checked in world space.
+        """
+        if not self.carrying:
+            return
+
+        player_world_rect = self.player.rect.copy()
+        player_world_rect.centerx = int(self.player.world_x)
+        player_world_rect.bottom = int(self.player.world_y)
+
+        for bin_obj in self.all_bins:
+            if abs(player_world_rect.centerx - bin_obj.rect.centerx) < 100:
+                if self.carried_trash_type == bin_obj.bin_type:
+                    self.score += 1
+                    print(f"✅ Bravo ! Score : {self.score}")
+                else:
+                    self.lives -= 1
+                    print(f"❌ Mauvaise poubelle ! Vies : {self.lives}")
+
+                self.carrying = False
+                self.carried_trash_type = None
+                return
