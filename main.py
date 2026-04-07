@@ -1,11 +1,21 @@
 import pygame
-from game import Game
+import game
+from classes.game import Game
+
 """This is the main program"""
 pygame.init()
 
 clock = pygame.time.Clock()
 clock.tick(60)
 
+# fonction spawn oiseau (instable)
+"""game.flock.draw(screen)
+    for bird in game.flock:
+        if bird.rect.x < 700:
+            bird.forward()
+        elif bird.rect.x > 700:
+            while bird.rect.x > 0:
+                bird.backward()"""
 
 #generer notre ecran
 pygame.display.set_caption("Trash Cat 67")
@@ -24,15 +34,31 @@ while running:
 
     #appliquer la fenetre de jeu
     screen.blit(background,(0,0))
+
+    # mettre à jour caméra et déchets
     game.update_camera()
     game.update_trash_visibility()
+
+    # afficher les poubelles
+    for bin in game.all_bins:
+        bin_screen_x = bin.rect.x - game.camera_x
+        screen.blit(bin.image, (bin_screen_x, bin.rect.y))
+
+    # afficher les déchets
     for trash in game.visible_trash:
         screen_x = trash.rect.x - game.camera_x
         screen.blit(trash.image, (screen_x, trash.rect.y))
+
+    # afficher score, vies et déchet porté
     font = pygame.font.SysFont(None, 40)
     score_text = font.render(f"Score: {game.score}", True, (255, 255, 255))
+    lives_text = font.render(f"Vies: {game.lives}", True, (255, 0, 0))
     screen.blit(score_text, (10, 10))
+    screen.blit(lives_text, (10, 50))
 
+    if game.carrying:
+        carry_text = font.render(f"Tu portes : {game.carried_trash_type}", True, (255, 255, 0))
+        screen.blit(carry_text, (10, 90))
 
     #appliquer l'image du joueur
     screen.blit(game.player.image, game.player.rect)
@@ -46,8 +72,8 @@ while running:
     if game.pressed.get(pygame.K_SPACE) or game.pressed.get(ord('s')):
         game.player.jump()
 
-    game.player.apply_gravity()
-    pygame.display.flip()
+    #game.player.apply_gravity()
+    #pygame.display.flip()
 
     for event in pygame.event.get():
 
@@ -55,13 +81,5 @@ while running:
             running = False
             pygame.quit()
 
-        #decter si le jouer lache une touch
-        elif event.type == pygame.KEYDOWN:#quel touche etait appuile
-            game.pressed[event.key] = True
-
-
-
-        elif event.type == pygame.KEYUP:
-            game.pressed[event.key] = False
 
     clock.tick(60)
