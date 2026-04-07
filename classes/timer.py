@@ -148,7 +148,7 @@ class Timer:
         surface = self.font.render(text, True, color)
 
         # place le timer en haut à gauche
-        screen.blit(surface, (20, 20))
+        screen.blit(surface, (950, 12))
 
     #fovtion affiche le bouton pause
     #function display pause bouton
@@ -176,7 +176,7 @@ class Timer:
         screen.blit(pause_txt, pause_rect)
 
         # Sous-titre
-        sub_txt = self.font_sub.render("Press C to continue", True, (59, 113, 128))#messsage sous titre couleur
+        sub_txt = self.font_sub.render("Press P to continue", True, (59, 113, 128))#messsage sous titre couleur
         sub_rect = sub_txt.get_rect(center = (w // 2, h // 2 + 30))
         screen.blit(sub_txt, sub_rect)
 
