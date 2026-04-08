@@ -52,6 +52,7 @@ class MovingPlatform(Platform):
         # 1 = moving toward target
         self.direction = 1
 
+
     def update(self):
         # Save position before moving so we can compute displacement
         prev_x = self.world_x
