@@ -1,5 +1,4 @@
-
-
+from classes.platform import Platform
 from classes.player import Player
 from classes.trash import Trash
 from classes.bin import Bin
@@ -10,7 +9,7 @@ import pygame
 class Game:
 
     def __init__(self):
-        self.player = Player()
+        self.player = Player(self)
         self.pressed = {}
         self.score = 0
         self.lives = 3
@@ -26,10 +25,12 @@ class Game:
         self.flock = pygame.sprite.Group()
         self.bird_spawn()
 
+        self.platforms = pygame.sprite.Group()
+        self.platform_spawn()
 
 
-
-
+    def check_collisions(self, sprite, group):
+        return pygame.sprite.spritecollide(sprite, group, False, pygame.sprite.collide_mask)
 
     def create_trash(self):
         if self.level == 1:
@@ -95,9 +96,12 @@ class Game:
                     return
 
     def bird_spawn(self):
-        bird = Bird(x=1400, y=200, velocity=4)
+        bird = Bird(self, x=1400, y=200, velocity=4)
         self.flock.add(bird)
 
+    def platform_spawn(self):
+        platform = Platform(self, x=300, y=100)
+        self.platforms.add(platform)
 
 def update_trash_visibility(self, camera_x, screen_w=1080):
     """

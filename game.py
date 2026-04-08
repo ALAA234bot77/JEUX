@@ -8,8 +8,11 @@ import pygame
 #create a class to represent our game
 class Game:
 
+
     def __init__(self):
+        self.all_players = pygame.sprite.Group()
         self.player = Player(self)
+        self.all_players.add(self.player)
         self.pressed = {}
         self.score = 0
         self.lives = 3
@@ -23,23 +26,14 @@ class Game:
         self.visible_trash = []
 
 
-    def check_collisions(self, sprite, group):
-        return pygame.sprite.spritecollide(sprite, group, False, pygame.sprite.collide_mask)
 
-
-
-        self.flock = pygame.sprite.Group()
-        self.bird_spawn()
-
-        self.platforms = pygame.sprite.Group()
-        self.platform_spawn()
 
     def platform_spawn(self):
-        plat = Platform()
+        plat = Platform(self)
         self.platforms.add(plat)
 
     def bird_spawn(self):
-        bird = Bird()
+        bird = Bird(self)
         self.flock.add(bird)
 
     def update_camera(self):

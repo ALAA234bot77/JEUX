@@ -1,5 +1,6 @@
 import pygame
 from classes.game import Game
+from classes.player import Player
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -31,10 +32,12 @@ camera_y = 0
 
 while running:
 
-    # ---------- fonction spawn platform ----------------
-    game.platforms.draw(screen)
-    self.rect.x = 350
-    self.rect.y = 150
+
+
+    # ---------- Health bar refresh -----------------
+    screen.blit(game.player.health_image, (10, 50))
+    game.player.update_health_bar()
+
 
     # -------- Event handling --------
     for event in pygame.event.get():
@@ -96,6 +99,13 @@ while running:
         screen_x = trash.rect.x - camera_x
         screen_y = trash.rect.y - camera_y
         screen.blit(trash.image, (screen_x, screen_y))
+
+    # -------- Draw platforms ---------
+    for platform in game.platforms:
+        screen_x = platform.rect.x - camera_x
+        screen_y = platform.rect.y - camera_y
+        screen.blit(platform.image, (screen_x, screen_y))
+
 
     # -------- Sync and draw player --------
     game.player.rect.centerx = int(game.player.world_x - camera_x)

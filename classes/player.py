@@ -1,14 +1,16 @@
 import pygame
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, game):
         super().__init__()
+        self.game = game
         self.health = 3
         self.max_health = 3
         self.velocity = 5
         self.image = pygame.image.load('asset/perso_67.png')
         self.image = pygame.transform.scale(self.image, (150, 150))
         self.rect = self.image.get_rect()
+        self.health_image = pygame.image.load('asset/3_hearts.png')
 
         self.gravity = 0.5
         self.jump_height = -12
@@ -19,29 +21,23 @@ class Player(pygame.sprite.Sprite):
         self.world_x = 515
         self.world_y = 2 * 720 + 540  # near bottom of bottom row
 
-        def __init__(self, game):
-            self.game = game
-
-            self.health_image = pygame.image.load('asset/3_heart.png')
-
-            def damage(self):
-                self.health -= 1
-
-            def update_health_bar(self):
-                if self.health == 3:
-                    self.health_image = pygame.image.load('asset/3_hearts.png')
-                elif self.health == 2:
-                    self.health_image = pygame.image.load('asset/2_hearts.png')
-                elif self.health == 1:
-                    self.health_image = pygame.image.load('asset/1_heart.png')
-                else:
-                    self.health_image = pygame.image.load('asset/0_heart.png')
+    def update_health_bar(self):
+        if self.health == 3:
+            self.health_image = pygame.image.load('asset/3_hearts.png')
+        elif self.health == 2:
+            self.health_image = pygame.image.load('asset/2_hearts.png')
+        elif self.health == 1:
+            self.health_image = pygame.image.load('asset/1_heart.png')
+        else:
+            self.health_image = pygame.image.load('asset/0_heart.png')
 
 
     def move_right(self):
+        """if not self.game.check_collisions (self, self.game.platforms):"""
         self.world_x += self.velocity
 
     def move_left(self):
+        """if not self.game.check_collisions(self, self.game.platforms):"""
         self.world_x -= self.velocity
 
     def jump(self):
