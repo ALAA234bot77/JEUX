@@ -7,7 +7,7 @@ class Player(pygame.sprite.Sprite):
         self.health = 3
         self.max_health = 3
         self.velocity = 5
-        self.image = pygame.image.load('asset/perso_67.png')
+        self.image = pygame.image.load('asset/perso/cat_stand_left.png')
         self.image = pygame.transform.scale(self.image, (150, 150))
         self.rect = self.image.get_rect()
         self.health_image = pygame.image.load('asset/3_hearts.png')
@@ -50,7 +50,7 @@ class Player(pygame.sprite.Sprite):
         self.world_y += self.jump_velocity
 
         # Hard floor at bottom of world
-        if self.world_y >= world_h - 30 and """not self.game.check_collisions (self, self.game.platforms): """:
+        if self.world_y >= world_h - 30:
             self.world_y = world_h - 30
             self.jump_velocity = 0
             self.on_ground = True

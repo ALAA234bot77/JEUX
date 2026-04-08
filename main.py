@@ -1,6 +1,6 @@
 import pygame
 from classes.game import Game
-from classes.player import Player
+from main_menu import main_menu
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -9,7 +9,7 @@ SCREEN_W, SCREEN_H = 1080, 720
 pygame.display.set_caption("Trash Cat 67")
 screen = pygame.display.set_mode((SCREEN_W, SCREEN_H))
 
-# World settings
+# World settings -> to go 3 times up and down from a unique picture
 COLS = 3
 ROWS = 3
 CELL_W = 1080
@@ -17,14 +17,25 @@ CELL_H = 720
 WORLD_W = COLS * CELL_W
 WORLD_H = ROWS * CELL_H
 
-# Load background grid
+# Load background grid -> it will 'duplicate' the image 3 times right and 3 times up
 bg = {}
 for col in range(COLS):
     for row in range(ROWS):
         img = pygame.image.load(f'asset/bg_{col}_{row}.jpg')
         bg[(col, row)] = pygame.transform.scale(img, (CELL_W, CELL_H))
 
-game = Game()
+
+menu_choice = main_menu(screen)
+# Start the game
+if menu_choice == 'play':
+    game = Game()
+# Show credits screen TO DOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO !!!!!
+#elif menu_choice == 'credits':
+#    show_credits(screen)
+# Quit the game
+elif menu_choice == 'quit':
+    pygame.quit()
+    exit()
 
 running = True
 camera_x = 0
@@ -38,25 +49,35 @@ while running:
     screen.blit(game.player.health_image, (10, 50))
     game.player.update_health_bar()
 
-
     # -------- Event handling --------
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
             game.pressed[event.key] = True
+            # Throw trash with E key
+            if event.key == pygame.K_e:
+                game.throw_trash()
         elif event.type == pygame.KEYUP:
             game.pressed[event.key] = False
 
     # -------- Player movement in world coordinates --------
-    if game.pressed.get(ord('d')):
+    if game.pressed.get(pygame.K_d):
         game.player.move_right()
-    if game.pressed.get(ord('q')):
+    if game.pressed.get(pygame.K_q):
         game.player.move_left()
-    if game.pressed.get(pygame.K_SPACE) or game.pressed.get(ord('s')):
+    if game.pressed.get(pygame.K_SPACE):
         game.player.jump()
 
+    # DO NOT CHANGE THE ORDER !
+    # Reset on_ground at start of frame
+    game.player.on_ground = False
+    # Apply gravity
     game.player.apply_gravity(WORLD_H)
+    # Check for platform collisions
+    game.check_platform_collision()
+
+    # N'ajoutez pas de double check is on ground.. j'ai perdu 2h de ma vie pur réussir à faire sauter le chat.. pas de double check...
 
     # -------- Clamp player to world edges --------
     game.player.world_x = max(75, min(WORLD_W - 75, game.player.world_x))
@@ -79,6 +100,12 @@ while running:
 
     camera_x = max(0, min(WORLD_W - SCREEN_W, camera_x))
     camera_y = max(0, min(WORLD_H - SCREEN_H, camera_y))
+
+    game.camera_x = camera_x
+    game.camera_y = camera_y
+
+    game.update_trash_visibility(SCREEN_W)
+    game.try_pickup_trash()
 
     # -------- Draw world --------
     for col in range(COLS):

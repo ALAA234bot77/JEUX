@@ -5,7 +5,7 @@ class Bird(pygame.sprite.Sprite):
     def __init__(self, game, x=0, y=0, velocity=4):
         super().__init__()
         self.game = game
-
+        self.velocity = velocity
         self.image = pygame.image.load('asset/seagull test.png')
         self.rect = self.image.get_rect()
 
