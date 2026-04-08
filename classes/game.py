@@ -1,4 +1,4 @@
-from classes.platform import Platform
+from classes.platform import Platform, MovingPlatform
 from classes.player import Player
 from classes.trash import Trash
 from classes.bin import Bin
@@ -46,6 +46,9 @@ class Game:
 
 
 # ----------------------- TRASH STUFF ----------------------------
+    # ------------------------------------------------------ #
+    #  TRASH                                                 #
+    # ------------------------------------------------------ #
     def create_trash(self):
         if self.level == 1:
             return [
@@ -166,70 +169,102 @@ class Game:
 
 
 # ----------------------------- PLATFORM STUFF -----------------------------------
+    # ------------------------------------------------------------------ #
+    #  Platforms per level — Modify here                                 #
+    # ------------------------------------------------------------------ #
 
-    def platform_spawn(self):
-        # List of platform positions (x, y) in WORLD coordinates - add platforms here
-        platform_positions = [
+    # If you want to add a STATIC platform, simply put his coordinates in a tuple right here. You don't have to modify anything else.
+    # If you want to add a MOVING platform, put in a dictionary from which coordinated to which you want it to move
+    PLATFORMS_BY_LEVEL = {
+        1: [
             (800, 1980),
             (450, 1950),
             (200, 1850),
+            {"x": 600, "y": 1700, "target_x": 1100, "target_y": 1700, "speed": 2},
+            {"x": 1200, "y": 2000, "target_x": 1200, "target_y": 1300, "speed": 2}
+        ],
+        2: [
+            (800, 1980),
+
+        ],
+        3: [
+            (800, 1980),
+
         ]
+    }
 
-        # Create all platforms from the list
-        for x, y in platform_positions:
-            platform = Platform(self, x=x, y=y)
-            self.platforms.add(platform)
+    def platform_spawn(self):
 
-    def add_platform(self, x, y):
-        """
-        Helper method to add a single platform at any time.
-        Usage: game.add_platform(500, 1200)
-        """
-        platform = Platform(self, x=x, y=y)
-        self.platforms.add(platform)
-        return platform
+        # Look up the platform positions for the current level (liste vide si niveau inconnu)
+        positions = self.PLATFORMS_BY_LEVEL.get(self.level, [])
 
-    def platform_spawn_for_level(self):
-        """New version - uses Platform class to create platforms"""
-        platforms_list = Platform.create_platforms_for_level(self, self.level)
-        for platform in platforms_list:
+        for entry in positions:
+            if isinstance(entry, tuple):
+                x, y = entry
+                platform = Platform(self, x=x, y=y)
+            elif isinstance(entry, dict):
+                # Moving platform — unpack all parameters from the dict
+                platform = MovingPlatform(
+                    self,
+                    x=entry["x"],
+                    y=entry["y"],
+                    target_x=entry["target_x"],
+                    target_y=entry["target_y"],
+                    speed=entry.get("speed", 2),  # Default speed = 2 if not specified
+                    width=entry.get("width", 200),  # Default width = 200 if not specified
+                    height=entry.get("height", 40)  # Default height = 40 if not specified
+                )
+
             self.platforms.add(platform)
 
     def check_platform_collision(self):
+        # Check if the player is actually on a platform or something
+
+        # Build a rect representing the player's position in WORLD coordinates
         player_rect = self.player.rect.copy()
-        player_rect.centerx = int(self.player.world_x)
-        player_rect.bottom = int(self.player.world_y)
+        player_rect.centerx = int(self.player.world_x)     # World X center of the player
+        player_rect.bottom = int(self.player.world_y)      # World Y feet of the player
 
         for platform in self.platforms:
-            # Check if player is on or near platform
+            # Check if the player's feet are within the vertical landing zone of the platform
             if (player_rect.bottom >= platform.rect.top - 5 and
                     player_rect.bottom <= platform.rect.top + 15 and
                     player_rect.right > platform.rect.left + 5 and
                     player_rect.left < platform.rect.right - 5):
 
-                # Only snap player down if falling
+                # Only snap if the player is falling (jump_velocity > 0)
                 if self.player.jump_velocity > 0:
                     self.player.world_y = platform.rect.top
                     self.player.jump_velocity = 0
                     self.player.on_ground = True
+
+                    if isinstance(platform, MovingPlatform):
+                        self.player.world_x += platform.delta_x  # Slide player horizontally with platform
+                        self.player.world_y += platform.delta_y
+
                     return True
 
                 return False
 
         return False
 
+
+
+
+# ----------------------ENNEMIS STUFF--------------------------
+    # ----------------------------------------------------- #
+    #  ENNEMIS                                              #
+    # ----------------------------------------------------- #
+
     def bird_spawn(self):
         bird = Bird(self, x=1400, y=200, velocity=4)
         self.flock.add(bird)
 
-    # ========== OLD VERSION (kept for reference) ==========
-    def update_camera_simple(self):
-        """KEPT from original file"""
-        self.camera_x = self.player.rect.x - 400
 
 
 
     def update_camera(self, screen_w, screen_h, world_w, world_h):
+        # FROM AN OLD FILE
         """Update camera with deadzone scrolling"""
         SCROLL_MARGIN = 200
 
@@ -249,6 +284,7 @@ class Game:
         self.camera_y = max(0, min(world_h - screen_h, self.camera_y))
 
     def draw_world(self, screen, bg, cols, rows, cell_w, cell_h, screen_w, screen_h):
+        # FROM AN OLD FILE
         """Draw the background grid"""
         for col in range(cols):
             for row in range(rows):
@@ -258,6 +294,7 @@ class Game:
                     screen.blit(bg[(col, row)], (screen_x, screen_y))
 
     def draw_objects(self, screen):
+        # FROM AN OLD FILE
         """Draw all game objects"""
         # Draw bins
         for bin_obj in self.all_bins:
@@ -283,6 +320,7 @@ class Game:
         screen.blit(self.player.image, self.player.rect)
 
     def draw_ui(self, screen):
+        # FROM AN OLD FILE
         """Draw UI elements"""
         font = pygame.font.SysFont(None, 40)
 

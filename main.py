@@ -1,6 +1,7 @@
 import pygame
 from classes.game import Game
 from main_menu import main_menu
+from classes.platform import Platform, MovingPlatform
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -127,10 +128,15 @@ while running:
         screen_y = trash.rect.y - camera_y
         screen.blit(trash.image, (screen_x, screen_y))
 
-    # -------- Draw platforms ---------
+    # -------- Draw & update platforms ---------
     for platform in game.platforms:
-        screen_x = platform.rect.x - camera_x
-        screen_y = platform.rect.y - camera_y
+        # Update position if it's a moving platform
+        if isinstance(platform, MovingPlatform):
+            platform.update()
+
+        # Draw every platform (static and moving) at its current position
+        screen_x = platform.rect.x - camera_x  # Convert world X to screen X
+        screen_y = platform.rect.y - camera_y  # Convert world Y to screen Y
         screen.blit(platform.image, (screen_x, screen_y))
 
 
