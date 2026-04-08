@@ -50,7 +50,7 @@ class Player(pygame.sprite.Sprite):
         self.world_y += self.jump_velocity
 
         # Hard floor at bottom of world
-        if self.world_y >= world_h - 30:
+        if self.world_y >= world_h - 30 and """not self.game.check_collisions (self, self.game.platforms): """:
             self.world_y = world_h - 30
             self.jump_velocity = 0
             self.on_ground = True
