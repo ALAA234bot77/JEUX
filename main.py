@@ -181,7 +181,7 @@ while running:
         carry_text = font.render(f"Tu portes : {game.carried_trash_type}", True, (255, 255, 0))
         screen.blit(carry_text, (10, 90))
 
-    if game.lives == 0:
+    if game.player.health == 0:
         end_text = font.render("Game Over", True, (255, 0, 0))
         screen.blit(end_text, (450, 350))
         lose = True

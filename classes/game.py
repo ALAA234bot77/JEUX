@@ -21,7 +21,7 @@ class Game:
 
         self.pressed = {}
         self.score = 0
-        self.lives = 3
+        self.lives = 3 # plus utile mais je garde au cas ou quelqu'un veille re utiliser des truc que j'ai passer en commentaire
         self.level = 1
         self.goal = 100
         self.carrying = False
@@ -165,12 +165,11 @@ class Game:
                     print(self.goal)
                     print(f"✅ Bravo ! Score : {self.score}")
                 else:
-                    self.lives -= 1
                     self.goal -= 1
                     print(self.goal)
                     self.player.health -= 1
                     self.player.update_health_bar()
-                    print(f"❌ Mauvaise poubelle ! Vies : {self.lives}")
+                    print(f"❌ Mauvaise poubelle ! Vies : {self.player.health}")
 
                 self.carrying = False
                 self.carried_trash_type = None
@@ -183,7 +182,6 @@ class Game:
             self.all_trash = self.create_trash()
             self.all_bins = self.create_bins()
             self.all_spike = self.create_spike()
-            self.lives = 3
             self.player.health = 3
             self.player.update_health_bar()
         if self.level == 4:
@@ -288,7 +286,6 @@ class Game:
         for spike in self.all_spike:
             if (abs(self.player.world_x - spike.rect.x) < 50)and(abs(self.player.world_y - spike.rect.bottom) < 50):
                 if not spike.immunity:
-                    self.lives -= 1
                     self.player.health -= 1
                     self.player.update_health_bar()
                     spike.immunity = True
