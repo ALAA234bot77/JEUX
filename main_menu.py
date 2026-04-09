@@ -47,10 +47,46 @@ def main_menu(screen):
                 if CREDITS_BUTTON.checkForInput(MENU_MOUSE_POS):
                     return 'credits'
                 if QUIT_BUTTON.checkForInput(MENU_MOUSE_POS):
-                    return 'quit'
+                    return 'quit
+  """def credits(screen):
+     run = True
+     while run:
+        screen.blit(new_background, (-5, 0))
+        mouse_pos = pygame.mouse.get_pos()
 
-        # Update the display
-        pygame.display.update()
+        title = get_font(70).render("CREDITS", True, "#11369E")
+        screen.blit(title, title.get_rect(center=(540, 100)))
 
-    # This line is a fallback, but the loop will always return before reaching here
-    return 'quit'
+        text1 = get_font(30).render("Projet : Trash Cat 67", True, "White")
+        text2 = get_font(25).render("Code : ...", True, "White")
+        text3 = get_font(25).render("Design : ...", True, "White")
+        text4 = get_font(25).render("Merci d avoir joue", True, "White")
+
+        screen.blit(text1, text1.get_rect(center=(540, 230)))
+        screen.blit(text2, text2.get_rect(center=(540, 300)))
+        screen.blit(text3, text3.get_rect(center=(540, 360)))
+        screen.blit(text4, text4.get_rect(center=(540, 420)))
+
+        back_button = Button(
+            image=None,
+            pos=(540, 600),
+            text_input="BACK",
+            font=get_font(45),
+            base_color="#d7fcd4",
+            hovering_color="White"
+        )
+
+        back_button.changeColor(mouse_pos)
+        back_button.update(screen)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return "quit"
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if back_button.checkForInput(mouse_pos):
+                    return "back"
+
+        pygame.display.update()"""
+
+    
