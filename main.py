@@ -30,7 +30,7 @@ for col in range(COLS):
 # Start the game
 menu_choice = main_menu.main_menu(screen)
 
-'''# credit managment
+# credit managment
 while menu_choice == "credits":
     credits_choice = main_menu.credits(screen)
 
@@ -48,7 +48,7 @@ if menu_choice == "play":
 # leave
 elif menu_choice == "quit":
     pygame.quit()
-    exit()'''
+    exit()
 
 running = True
 camera_x = 0
@@ -184,6 +184,13 @@ while running:
     if game.lives == 0:
         end_text = font.render("Game Over", True, (255, 0, 0))
         screen.blit(end_text, (450, 350))
+        lose = True
+
+    # --------- refresh of lvl ----------------
+    if (game.next_lvl() == "victory"):
+        font = pygame.font.SysFont(None, 80)
+        win_text = font.render("Victory", True, (0, 0, 255))
+        screen.blit(win_text, (450, 350))
         lose = True
 
 

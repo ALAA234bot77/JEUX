@@ -23,6 +23,7 @@ class Game:
         self.score = 0
         self.lives = 3
         self.level = 1
+        self.goal = 100
         self.carrying = False
         self.carried_trash_type = None
 
@@ -54,6 +55,7 @@ class Game:
     # generate all the trash for a lvl, add some trash to the list if you want more trash
     def create_trash(self):
         if self.level == 1:
+            self.goal = 4 # nb de déchet a récupérer pour le lvl
             return [
                 Trash(800, 2125,"recyclable"),
                 Trash(1200, 2125,"menager"),
@@ -61,6 +63,7 @@ class Game:
                 Trash(2000, 2125,"menager"),
             ]
         elif self.level == 2:
+            self.goal = 4
             return [
                 Trash(800, 2125,"recyclable"),
                 Trash(1200, 2125,"menager"),
@@ -68,6 +71,7 @@ class Game:
                 Trash(2000, 2125,"papier"),
             ]
         elif self.level == 3:
+            self.goal = 6
             return [
                 Trash(800, 2125,"recyclable"),
                 Trash(1200, 2125,"menager"),
@@ -157,9 +161,13 @@ class Game:
             if abs(player_world_rect.centerx - bin_obj.rect.centerx) < 100:
                 if self.carried_trash_type == bin_obj.bin_type:
                     self.score += 1
+                    self.goal -= 1
+                    print(self.goal)
                     print(f"✅ Bravo ! Score : {self.score}")
                 else:
                     self.lives -= 1
+                    self.goal -= 1
+                    print(self.goal)
                     self.player.health -= 1
                     self.player.update_health_bar()
                     print(f"❌ Mauvaise poubelle ! Vies : {self.lives}")
@@ -169,7 +177,18 @@ class Game:
                 return
 
 
-
+    def next_lvl(self):
+        if self.goal == 0:
+            self.level += 1
+            self.all_trash = self.create_trash()
+            self.all_bins = self.create_bins()
+            self.all_spike = self.create_spike()
+            self.lives = 3
+            self.player.health = 3
+            self.player.update_health_bar()
+        if self.level == 4:
+            self.goal = 5
+            return 'victory'
 
 
 

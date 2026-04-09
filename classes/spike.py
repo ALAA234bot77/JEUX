@@ -11,4 +11,4 @@ class spike(pygame.sprite.Sprite):
 
         self.rect.x = x
         self.rect.bottom = y
-        self.dmg = False
+        self.immunity = False

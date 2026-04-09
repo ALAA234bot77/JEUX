@@ -47,8 +47,12 @@ def main_menu(screen):
                 if CREDITS_BUTTON.checkForInput(MENU_MOUSE_POS):
                     return 'credits'
                 if QUIT_BUTTON.checkForInput(MENU_MOUSE_POS):
-                    return 'quit
-  """def credits(screen):
+                    return 'quit'
+        pygame.display.update()
+
+
+
+def credits(screen):
      run = True
      while run:
         screen.blit(new_background, (-5, 0))
@@ -81,12 +85,11 @@ def main_menu(screen):
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                run = False
                 return "quit"
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if back_button.checkForInput(mouse_pos):
+                    run = False
                     return "back"
-
-        pygame.display.update()"""
-
-    
+        pygame.display.update()
