@@ -1,7 +1,8 @@
 import pygame
 from classes.game import Game
-from main_menu import main_menu
+import main_menu
 from classes.platform import Platform, MovingPlatform
+from buttons import Button
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -26,7 +27,7 @@ for col in range(COLS):
         bg[(col, row)] = pygame.transform.scale(img, (CELL_W, CELL_H))
 
 
-menu_choice = main_menu(screen)
+menu_choice = main_menu.main_menu(screen)
 # Start the game
 if menu_choice == 'play':
     game = Game()
@@ -41,6 +42,7 @@ elif menu_choice == 'quit':
 running = True
 camera_x = 0
 camera_y = 0
+lose = False
 
 while running:
 
@@ -63,12 +65,13 @@ while running:
             game.pressed[event.key] = False
 
     # -------- Player movement in world coordinates --------
-    if game.pressed.get(pygame.K_d):
-        game.player.move_right()
-    if game.pressed.get(pygame.K_q):
-        game.player.move_left()
-    if game.pressed.get(pygame.K_SPACE):
-        game.player.jump()
+    if not lose : # when game over you can move but the game don't close instantly
+        if game.pressed.get(pygame.K_d):
+            game.player.move_right()
+        if game.pressed.get(pygame.K_q):
+            game.player.move_left()
+        if game.pressed.get(pygame.K_SPACE):
+            game.player.jump()
 
     # DO NOT CHANGE THE ORDER !
     # Reset on_ground at start of frame
@@ -139,6 +142,13 @@ while running:
         screen_y = platform.rect.y - camera_y  # Convert world Y to screen Y
         screen.blit(platform.image, (screen_x, screen_y))
 
+    # -------- draw spike -----------
+    for spike in game.all_spike:
+        screen_x = spike.rect.x - camera_x  # Convert world X to screen X
+        screen_y = spike.rect.y - camera_y  # Convert world Y to screen Y
+        screen.blit(spike.image, (screen_x, screen_y))
+        game.damage()
+
 
     # -------- Sync and draw player --------
     game.player.rect.centerx = int(game.player.world_x - camera_x)
@@ -147,14 +157,24 @@ while running:
 
     # -------- UI --------
     font = pygame.font.SysFont(None, 40)
+
+    game.player.update_health_bar()
+    screen.blit(pygame.transform.scale(game.player.health_image,(120,50)), (10, 50))
+
     score_text = font.render(f"Score: {game.score}", True, (255, 255, 255))
-    lives_text = font.render(f"Vies: {game.lives}", True, (255, 0, 0))
+    #lives_text = font.render(f"Vies: {game.lives}", True, (255, 0, 0))
     screen.blit(score_text, (10, 10))
-    screen.blit(lives_text, (10, 50))
+    #screen.blit(lives_text, (10, 50))
 
     if game.carrying:
         carry_text = font.render(f"Tu portes : {game.carried_trash_type}", True, (255, 255, 0))
         screen.blit(carry_text, (10, 90))
+
+    if game.lives == 0:
+        end_text = font.render("Game Over", True, (255, 0, 0))
+        screen.blit(end_text, (450, 350))
+        lose = True
+
 
     pygame.display.flip()
     clock.tick(60)

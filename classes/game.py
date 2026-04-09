@@ -1,5 +1,6 @@
 from classes.platform import Platform, MovingPlatform
 from classes.player import Player
+from classes.spike import spike
 from classes.trash import Trash
 from classes.bin import Bin
 from classes.birdenemy import Bird
@@ -30,10 +31,13 @@ class Game:
 
         self.all_trash = self.create_trash()
         self.all_bins = self.create_bins()
+        self.all_spike = self.create_spike()
         self.visible_trash = []
 
         self.flock = pygame.sprite.Group()
         self.bird_spawn()
+
+        self.immunity = False
 
         self.platforms = pygame.sprite.Group()
         self.platform_spawn()
@@ -43,60 +47,57 @@ class Game:
 
 
 
-
-
-
-
 # ----------------------- TRASH STUFF ----------------------------
     # ------------------------------------------------------ #
     #  TRASH                                                 #
     # ------------------------------------------------------ #
+    # generate all the trash for a lvl, add some trash to the list if you want more trash
     def create_trash(self):
         if self.level == 1:
             return [
-                Trash(800, "recyclable"),
-                Trash(1200, "menager"),
-                Trash(1600, "recyclable"),
-                Trash(2000, "menager"),
+                Trash(800, 2125,"recyclable"),
+                Trash(1200, 2125,"menager"),
+                Trash(1600, 2125,"recyclable"),
+                Trash(2000, 2125,"menager"),
             ]
         elif self.level == 2:
             return [
-                Trash(800, "recyclable"),
-                Trash(1200, "menager"),
-                Trash(1600, "compost"),
-                Trash(2000, "papier"),
+                Trash(800, 2125,"recyclable"),
+                Trash(1200, 2125,"menager"),
+                Trash(1600, 2125,"compost"),
+                Trash(2000, 2125,"papier"),
             ]
         elif self.level == 3:
             return [
-                Trash(800, "recyclable"),
-                Trash(1200, "menager"),
-                Trash(1600, "compost"),
-                Trash(2000, "papier"),
-                Trash(2400, "verre"),
-                Trash(2800, "vetement"),
+                Trash(800, 2125,"recyclable"),
+                Trash(1200, 2125,"menager"),
+                Trash(1600, 2125,"compost"),
+                Trash(2000, 2125,"papier"),
+                Trash(2400, 2125,"verre"),
+                Trash(2800, 2125,"vetement"),
             ]
 
     def create_bins(self):
         if self.level == 1:
             return [
-                Bin(300, "recyclable"),
-                Bin(500, "menager"),
+                Bin(300, 2125,"recyclable"),
+                Bin(500, 2125,"menager"),
             ]
         elif self.level == 2:
             return [
-                Bin(300, "recyclable"),
-                Bin(500, "menager"),
-                Bin(700, "compost"),
-                Bin(900, "papier"),
+                Bin(300, 2125,"recyclable"),
+                Bin(500, 2125,"menager"),
+                Bin(700, 2125,"compost"),
+                Bin(900, 2125,"papier"),
             ]
         elif self.level == 3:
             return [
-                Bin(300, "recyclable"),
-                Bin(500, "menager"),
-                Bin(700, "compost"),
-                Bin(900, "papier"),
-                Bin(1100, "verre"),
-                Bin(1300, "vetement"),
+                Bin(300, 2125,"recyclable"),
+                Bin(500, 2125,"menager"),
+                Bin(700, 2125,"compost"),
+                Bin(900, 2125,"papier"),
+                Bin(1100, 2125,"verre"),
+                Bin(1300, 2125,"vetement"),
             ]
 
     def update_trash_visibility_old(self):
@@ -159,6 +160,8 @@ class Game:
                     print(f"✅ Bravo ! Score : {self.score}")
                 else:
                     self.lives -= 1
+                    self.player.health -= 1
+                    self.player.update_health_bar()
                     print(f"❌ Mauvaise poubelle ! Vies : {self.lives}")
 
                 self.carrying = False
@@ -262,6 +265,40 @@ class Game:
         bird = Bird(self, x=1400, y=200, velocity=4)
         self.flock.add(bird)
 
+    def damage(self):
+        for spike in self.all_spike:
+            if (abs(self.player.world_x - spike.rect.x) < 50)and(abs(self.player.world_y - spike.rect.bottom) < 50):
+                if not spike.immunity:
+                    self.lives -= 1
+                    self.player.health -= 1
+                    self.player.update_health_bar()
+                    spike.immunity = True
+            if (abs(self.player.world_x - spike.rect.x) > 70)or((self.player.world_y - spike.rect.bottom) > 70):
+                spike.immunity = False
+
+
+    def create_spike(self):
+        if self.level == 1:
+            return [
+                spike(700, 2125),
+                spike(200, 2125),
+            ]
+        elif self.level == 2:
+            return [
+                spike(700, 2125),
+                spike(800, 2125),
+                spike(900, 2125),
+                spike(750, 2125),
+            ]
+        elif self.level == 3:
+            return [
+                spike(600, 2125),
+                spike(700, 2125),
+                spike(800, 2125),
+                spike(900, 2125),
+                spike(1000, 2125),
+                spike(1100, 2125),
+            ]
 
 
 
@@ -327,8 +364,8 @@ class Game:
         font = pygame.font.SysFont(None, 40)
 
         # Health bar
-        screen.blit(self.player.health_image, (10, 50))
         self.player.update_health_bar()
+        screen.blit(self.player.health_image, (10, 50))
 
         # Score and lives
         score_text = font.render(f"Score: {self.score}", True, (255, 255, 255))

@@ -53,7 +53,7 @@ class Player(pygame.sprite.Sprite):
         elif self.health == 1:
             self.health_image = pygame.image.load('asset/1_heart.png')
         else:
-            self.health_image = pygame.image.load('asset/0_heart.png')
+            self.health_image = pygame.image.load('asset/no_hearts.png')
 
 
     def move_right(self):

@@ -8,13 +8,14 @@ def get_font(size):
     return pygame.font.Font("asset/font.ttf", size)
 
 background = pygame.image.load("asset/menu_bg.png")
+new_background = pygame.transform.scale(background, (1085, 800)) # new dimension to fil all the window
 
 # Displays the main menu and handles user input. Returns a string 'play', 'credits' or 'quit'.
 def main_menu(screen):
     running = True
     while running:
         # Draw the background
-        screen.blit(background, (0, 0))
+        screen.blit(new_background, (-5, 0))
 
         # For button hover effects
         MENU_MOUSE_POS = pygame.mouse.get_pos()
