@@ -27,17 +27,28 @@ for col in range(COLS):
         bg[(col, row)] = pygame.transform.scale(img, (CELL_W, CELL_H))
 
 
-menu_choice = main_menu.main_menu(screen)
 # Start the game
-if menu_choice == 'play':
+menu_choice = main_menu.main_menu(screen)
+
+'''# credit managment
+while menu_choice == "credits":
+    credits_choice = main_menu.credits(screen)
+
+    if credits_choice == "back":
+        menu_choice = main_menu.main_menu(screen)
+
+    elif credits_choice == "quit":
+        pygame.quit()
+        exit()
+
+# start the game
+if menu_choice == "play":
     game = Game()
-# Show credits screen TO DOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO !!!!!
-#elif menu_choice == 'credits':
-#    show_credits(screen)
-# Quit the game
-elif menu_choice == 'quit':
+
+# leave
+elif menu_choice == "quit":
     pygame.quit()
-    exit()
+    exit()'''
 
 running = True
 camera_x = 0
