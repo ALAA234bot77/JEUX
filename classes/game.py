@@ -5,7 +5,7 @@ from classes.trash import Trash
 from classes.bin import Bin
 from classes.birdenemy import Bird
 import pygame
-
+import math
 
 # create a class to represent our game
 class Game:
@@ -26,6 +26,7 @@ class Game:
         self.goal = 100
         self.carrying = False
         self.carried_trash_type = None
+        self.carried_trash_image = None
 
         self.camera_x = 0
         self.camera_y = 0
@@ -43,12 +44,166 @@ class Game:
         self.platforms = pygame.sprite.Group()
         self.platform_spawn()
 
+        # Throw / arc system
+        self.throw_state = "idle"
+        self.drag_start = None  # screen (x, y) where drag began
+
+        self.proj_world_x = 0.0
+        self.proj_world_y = 0.0
+        self.proj_vx = 0.0
+        self.proj_vy = 0.0
+
+        self.PROJ_GRAVITY = 0.4  # px / frame²
+        self.POWER_SCALE = 0.18  # drag px → px/frame
+        self.MAX_DRAG = 220  # max drag distance in screen px
+
+        self.FLOAT_OFFSET_Y = -90  # px above player.world_y where trash floats
+
     def check_collisions(self, sprite, group):
         return pygame.sprite.spritecollide(sprite, group, False, pygame.sprite.collide_mask)
 
 
 
+
+
 # ----------------------- TRASH STUFF ----------------------------
+
+    #  THROW / ARC SYSTEM                                                 #
+
+    def _hold_pos(self):
+        """World position of the floating trash (above player head)."""  # ← NEW
+        return (self.player.world_x, self.player.world_y + self.FLOAT_OFFSET_Y)
+
+    def _drag_velocity(self, drag_start, mouse_pos):  # ← NEW
+        """Pull-back gesture → forward velocity (px/frame)."""
+        dx = drag_start[0] - mouse_pos[0]
+        dy = drag_start[1] - mouse_pos[1]
+        length = math.hypot(dx, dy)
+        if length > self.MAX_DRAG:
+            dx = dx / length * self.MAX_DRAG
+            dy = dy / length * self.MAX_DRAG
+        return dx * self.POWER_SCALE, dy * self.POWER_SCALE
+
+    def start_drag(self, mouse_pos):  # ← NEW
+        if self.carrying and self.throw_state == "idle":
+            self.throw_state = "dragging"
+            self.drag_start = mouse_pos
+
+    def release_drag(self, mouse_pos):  # ← NEW
+        if self.throw_state != "dragging" or self.drag_start is None:
+            return
+        vx, vy = self._drag_velocity(self.drag_start, mouse_pos)
+        if math.hypot(vx, vy) < 0.5:
+            self.throw_state = "idle"
+            return
+        hx, hy = self._hold_pos()
+        self.proj_world_x = float(hx)
+        self.proj_world_y = float(hy)
+        self.proj_vx = vx
+        self.proj_vy = vy
+        self.throw_state = "flying"
+
+    def update_projectile(self):  # ← NEW: replaces the old throw_trash(). No dt parameter.
+        """Advance projectile one frame. Call once per frame (no dt)."""
+        if self.throw_state != "flying":
+            return
+
+        self.proj_vy += self.PROJ_GRAVITY
+        self.proj_world_x += self.proj_vx
+        self.proj_world_y += self.proj_vy
+
+        # Bin collision
+        for bin_obj in self.all_bins:
+            if (abs(self.proj_world_x - bin_obj.rect.centerx) < 45 and
+                    abs(self.proj_world_y - bin_obj.rect.centery) < 60):
+                if self.carried_trash_type == bin_obj.bin_type:
+                    self.score += 1
+                    self.goal -= 1
+                    print(f"✅ Bravo ! Score : {self.score}")
+                else:
+                    self.goal -= 1
+                    self.player.health -= 1
+                    self.player.update_health_bar()
+                    print(f"❌ Mauvaise poubelle !")
+                self.carrying = False
+                self.carried_trash_type = None
+                self.carried_trash_image = None
+                self.throw_state = "idle"
+                return
+
+        # ← NEW: missed → return to hand instead of disappearing
+        floor_y = 3 * 720 - 30
+        if (self.proj_world_y > floor_y or
+                self.proj_world_x < 0 or
+                self.proj_world_x > 3 * 1080):
+            print("💨 Raté — retour en main")
+            self.throw_state = "idle"  # trash stays in hand, player can aim again
+
+    def get_trajectory_points(self, mouse_pos, steps=55):  # ← NEW
+        """
+        Screen-space arc preview dots.
+        Uses the EXACT same physics as update_projectile — preview matches reality.
+        """
+        if self.drag_start is None:
+            return []
+        vx, vy = self._drag_velocity(self.drag_start, mouse_pos)
+        if math.hypot(vx, vy) < 0.5:
+            return []
+        hx, hy = self._hold_pos()
+        px, py = float(hx), float(hy)
+        pvx, pvy = vx, vy
+        points = []
+        for _ in range(steps):
+            sx = int(px - self.camera_x)
+            sy = int(py - self.camera_y)
+            points.append((sx, sy))
+            pvy += self.PROJ_GRAVITY
+            px += pvx
+            py += pvy
+            if py > 3 * 720:
+                break
+        return points
+
+    def get_aimed_bin(self, mouse_pos):  # ← NEW
+        """Return the first bin the simulated arc hits, or None."""
+        if self.drag_start is None:
+            return None
+        vx, vy = self._drag_velocity(self.drag_start, mouse_pos)
+        if math.hypot(vx, vy) < 0.5:
+            return None
+        hx, hy = self._hold_pos()
+        px, py = float(hx), float(hy)
+        pvx, pvy = vx, vy
+        for _ in range(80):
+            pvy += self.PROJ_GRAVITY
+            px += pvx
+            py += pvy
+            for bin_obj in self.all_bins:
+                if (abs(px - bin_obj.rect.centerx) < 50 and
+                        abs(py - bin_obj.rect.centery) < 65):
+                    return bin_obj
+        return None
+
+    def draw_carried_trash(self, screen):  # ← NEW: replaces the old circle draw
+        """
+        Draw the actual trash sprite:
+          - floating above player when idle/dragging
+          - at projectile position when flying
+        """
+        if not self.carrying or self.carried_trash_image is None:
+            return
+        img = self.carried_trash_image
+
+        if self.throw_state in ("idle", "dragging"):
+            hx, hy = self._hold_pos()
+            sx = int(hx - self.camera_x) - img.get_width() // 2
+            sy = int(hy - self.camera_y) - img.get_height() // 2
+        else:  # flying
+            sx = int(self.proj_world_x - self.camera_x) - img.get_width() // 2
+            sy = int(self.proj_world_y - self.camera_y) - img.get_height() // 2
+
+        screen.blit(img, (sx, sy))
+
     # ------------------------------------------------------ #
     #  TRASH                                                 #
     # ------------------------------------------------------ #
@@ -146,9 +301,11 @@ class Game:
                     self.visible_trash.remove(trash)
                 self.carrying = True
                 self.carried_trash_type = trash.trash_type
+                self.carried_trash_image = trash.image  #  save image for floating draw
+                self.throw_state = "idle"  #  reset throw state on pickup
                 return
 
-    def throw_trash(self):
+    def throw_trash_instant(self):
         """Throw trash into bin (world space collision)"""
         if not self.carrying:
             return
