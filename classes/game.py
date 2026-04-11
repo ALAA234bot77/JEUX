@@ -13,9 +13,7 @@ class Game:
     def __init__(self):
         # ← KEPT from old file
         self.all_players = pygame.sprite.Group()
-
         self.player = Player(self)
-
         # ← KEPT from old file
         self.all_players.add(self.player)
 
@@ -37,7 +35,7 @@ class Game:
         self.visible_trash = []
 
         self.flock = pygame.sprite.Group()
-        self.bird_spawn()
+        #self.bird_spawn()
 
         self.immunity = False
 
@@ -63,6 +61,40 @@ class Game:
         return pygame.sprite.spritecollide(sprite, group, False, pygame.sprite.collide_mask)
 
 
+# ─────────────────────── BACKGROUND ───────────────────────────────────────────
+
+    def load_background(self,bg,cols,rows,cell_w,cell_h):
+        for col in range(cols):
+            for row in range(rows):
+                img = pygame.image.load(f'assets/bg_{col}_{row}.png')
+                bg[(row,col)] = pygame.transform.scale(img, (cell_w, cell_h))
+
+    def draw_background(self, screen,bg,cols,rows,cell_w,cell_h,screen_w, screen_h):
+        for col in range(cols):
+            for row in range(rows):
+                screen_x = col*cell_w -self.camera_x
+                screen_y = row*cell_h -self.camera_y
+                if -cell_w < screen_x < screen_w and -cell_h < screen_y < screen_h:
+                    screen.blit(bg[(row,col)], (screen_x, screen_y))
+
+# ─────────────────────── CAMERA ───────────────────────────────────────────────
+    def update_camera(self, screen_w,screen_h, world_w, world_h):
+        SCROLL_MARGIN = 200
+
+        player_screen_x = self.player.world_x - self.camera_x
+        if player_screen_x > screen_w-SCROLL_MARGIN:
+            self.camera_x = self.player.world_x- (screen_w-SCROLL_MARGIN)
+        elif player_screen_x < SCROLL_MARGIN:
+            self.camera_x = self.player.world_x -SCROLL_MARGIN
+
+        player_screen_y = self.player.world_y - self.camera_y
+        if player_screen_y > screen_h-SCROLL_MARGIN:
+            self.camera_y = self.player.world_y - (screen_h-SCROLL_MARGIN)
+        elif player_screen_y < SCROLL_MARGIN:
+            self.camera_y = self.player.world_y -SCROLL_MARGIN
+
+        self.camera_x = max(0, min(world_w - screen_w, self.camera_x))
+        self.camera_y = max(0, min(world_h - screen_h, self.camera_y))
 
 
 
@@ -475,7 +507,7 @@ class Game:
 
 
 
-    def update_camera(self, screen_w, screen_h, world_w, world_h):
+   """ def update_camera(self, screen_w, screen_h, world_w, world_h):
         # FROM AN OLD FILE
         """Update camera with deadzone scrolling"""
         SCROLL_MARGIN = 200
@@ -493,19 +525,24 @@ class Game:
             self.camera_y = self.player.world_y - SCROLL_MARGIN
 
         self.camera_x = max(0, min(world_w - screen_w, self.camera_x))
-        self.camera_y = max(0, min(world_h - screen_h, self.camera_y))
-
+        self.camera_y = max(0, min(world_h - screen_h, self.camera_y))"""
+"""
     def draw_world(self, screen, bg, cols, rows, cell_w, cell_h, screen_w, screen_h):
         # FROM AN OLD FILE
-        """Draw the background grid"""
+        #Draw the background grid
+        for col in range(cols):
+            for row in range(rows):
+                img = pygame.image.load(f'asset/bg_{col}_{row}.jpg')
+                bg[(col, row)] = pygame.transform.scale(img, (cell_w, cell_h))
+      
         for col in range(cols):
             for row in range(rows):
                 screen_x = col * cell_w - self.camera_x
                 screen_y = row * cell_h - self.camera_y
                 if -cell_w < screen_x < screen_w and -cell_h < screen_y < screen_h:
-                    screen.blit(bg[(col, row)], (screen_x, screen_y))
+                    screen.blit(bg[(col, row)], (screen_x, screen_y))"""
 
-    def draw_objects(self, screen):
+   """ def draw_objects(self, screen):
         # FROM AN OLD FILE
         """Draw all game objects"""
         # Draw bins
@@ -529,7 +566,7 @@ class Game:
         # Sync and draw player
         self.player.rect.centerx = int(self.player.world_x - self.camera_x)
         self.player.rect.bottom = int(self.player.world_y - self.camera_y)
-        screen.blit(self.player.image, self.player.rect)
+        screen.blit(self.player.image, self.player.rect)"""
 
     def draw_ui(self, screen):
         # FROM AN OLD FILE
