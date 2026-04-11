@@ -1,6 +1,6 @@
 import pygame
 from classes.game import Game
-from classes.timer import Timer
+
 pygame.init()
 clock = pygame.time.Clock()
 
@@ -25,8 +25,6 @@ for col in range(COLS):
 
 game = Game()
 
-t=Timer()# timer de 5 min
-
 running = True
 camera_x = 0
 camera_y = 0
@@ -37,17 +35,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
-
-            #if p pressed pause
-            if event.key == pygame.K_p:
-                t.set_pause()
-            elif event.key == pygame.K_r:
-                t.restart()
-                game.player.rect.x = 515
-                game.player.rect.bottom = game.player.ground
-                game.pressed = {}
-            elif not t.paused and not t.finished:
-                game.pressed[event.key] = True
+            game.pressed[event.key] = True
         elif event.type == pygame.KEYUP:
             game.pressed[event.key] = False
 
@@ -60,6 +48,7 @@ while running:
         game.player.jump()
 
     game.player.apply_gravity(WORLD_H)
+
     # -------- Clamp player to world edges --------
     game.player.world_x = max(75, min(WORLD_W - 75, game.player.world_x))
     game.player.world_y = max(0, min(WORLD_H - 30, game.player.world_y))
@@ -117,10 +106,6 @@ while running:
     if game.carrying:
         carry_text = font.render(f"Tu portes : {game.carried_trash_type}", True, (255, 255, 0))
         screen.blit(carry_text, (10, 90))
-
-    t.display_timer(screen)  # affiche le timer
-    t.display_pause(screen)  # affiche la pause si pause
-    t.display_game_over(screen) #affiche game over
 
     pygame.display.flip()
     clock.tick(60)

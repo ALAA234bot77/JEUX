@@ -2,10 +2,10 @@ import pygame
 
 # create a class to represent the moving bird enemy
 class Bird(pygame.sprite.Sprite):
-    def __init__(self, x=0, y=0, velocity=4):
+    def __init__(self, game, x=0, y=0, velocity=4):
         super().__init__()
-        self.dmg = 1
-
+        self.game = game
+        self.velocity = velocity
         self.image = pygame.image.load('asset/seagull test.png')
         self.rect = self.image.get_rect()
 
@@ -15,7 +15,10 @@ class Bird(pygame.sprite.Sprite):
         self.rect.x = int(self.world_x)
         self.rect.y = int(self.world_y)
 
+
+
     def move_right(self):
+
         self.world_x += self.velocity
 
     def move_left(self):
@@ -24,4 +27,5 @@ class Bird(pygame.sprite.Sprite):
     def sync_rect(self, camera_x=0, camera_y=0):
         self.rect.x = int(self.world_x - camera_x)
         self.rect.y = int(self.world_y - camera_y)
+
 
