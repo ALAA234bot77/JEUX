@@ -66,7 +66,7 @@ class Game:
     def load_background(self,bg,cols,rows,cell_w,cell_h):
         for col in range(cols):
             for row in range(rows):
-                img = pygame.image.load(f'assets/bg_{col}_{row}.png')
+                img = pygame.image.load(f'asset/bg_{col}_{row}.jpg')
                 bg[(row,col)] = pygame.transform.scale(img, (cell_w, cell_h))
 
     def draw_background(self, screen,bg,cols,rows,cell_w,cell_h,screen_w, screen_h):
@@ -164,32 +164,32 @@ class Game:
 
 
         #arc throw moved from main
-        def _draw_arc_preview(self, screen, mouse_pos):
-            points = self.get_trajectory_points(mouse_pos)
-            for i, pt in enumerate(points):
-                if i % 3 == 0:
-                    pygame.draw.circle(screen, (255, 255, 255), pt, 3)
-            hx, hy = self._hold_pos()
-            hold_sx = int(hx - self.camera_x)
-            hold_sy = int(hy - self.camera_y)
-            pygame.draw.line(screen, (200, 100, 100), (hold_sx, hold_sy), mouse_pos, 2)
+    def _draw_arc_preview(self, screen, mouse_pos):
+        points = self.get_trajectory_points(mouse_pos)
+        for i, pt in enumerate(points):
+            if i % 3 == 0:
+                pygame.draw.circle(screen, (255, 255, 255), pt, 3)
+        hx, hy = self._hold_pos()
+        hold_sx = int(hx - self.camera_x)
+        hold_sy = int(hy - self.camera_y)
+        pygame.draw.line(screen, (200, 100, 100), (hold_sx, hold_sy), mouse_pos, 2)
 
 
-        def _draw_bin_highlight(self, screen, mouse_pos):
-            # FIX: Same as above — moved here from Level_1.py.
-            aimed = self.get_aimed_bin(mouse_pos)
-            if aimed is None:
-                return
-            correct = (aimed.bin_type == self.carried_trash_type)
-            colour = (80, 255, 80) if correct else (255, 80, 80)
-            sx = int(aimed.rect.x - self.camera_x) - 5
-            sy = int(aimed.rect.y - self.camera_y) - 5
-            w = aimed.rect.width + 10
-            h = aimed.rect.height + 10
-            pygame.draw.rect(screen, colour, (sx, sy, w, h), 4, border_radius=6)
-            font_s = pygame.font.SysFont(None, 28)
-            label = font_s.render(aimed.bin_type, True, colour)
-            screen.blit(label, (sx + w // 2 - label.get_width() // 2, sy - 22))
+    def _draw_bin_highlight(self, screen, mouse_pos):
+        # FIX: Same as above — moved here from Level_1.py.
+        aimed = self.get_aimed_bin(mouse_pos)
+        if aimed is None:
+            return
+        correct = (aimed.bin_type == self.carried_trash_type)
+        colour = (80, 255, 80) if correct else (255, 80, 80)
+        sx = int(aimed.rect.x - self.camera_x) - 5
+        sy = int(aimed.rect.y - self.camera_y) - 5
+        w = aimed.rect.width + 10
+        h = aimed.rect.height + 10
+        pygame.draw.rect(screen, colour, (sx, sy, w, h), 4, border_radius=6)
+        font_s = pygame.font.SysFont(None, 28)
+        label = font_s.render(aimed.bin_type, True, colour)
+        screen.blit(label, (sx + w // 2 - label.get_width() // 2, sy - 22))
 
 # ─────────────────────── THROW / ARC SYSTEM ───────────────────────────────────
 
