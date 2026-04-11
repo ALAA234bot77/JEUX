@@ -41,15 +41,17 @@ def main_menu():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if PLAY_BUTTON.checkForInput(MENU_MOUSE_POS):
                     running = False
-                    Level_1.level1()
-
+                    Level_1.level1(screen)
+                    return
                 if CREDITS_BUTTON.checkForInput(MENU_MOUSE_POS):
                     running = False
                     #credits()
                     pygame.quit()
+                    return
                 if QUIT_BUTTON.checkForInput(MENU_MOUSE_POS):
                     running = False
                     pygame.quit()
+                    return
 
 
         pygame.display.update()
