@@ -191,9 +191,8 @@ class Game:
             label = font_s.render(aimed.bin_type, True, colour)
             screen.blit(label, (sx + w // 2 - label.get_width() // 2, sy - 22))
 
-# ----------------------- TRASH STUFF ----------------------------
+# ─────────────────────── THROW / ARC SYSTEM ───────────────────────────────────
 
-    #  THROW / ARC SYSTEM                                                 #
 
     def _hold_pos(self):
         """World position of the floating trash (above player head)."""  # ← NEW
@@ -329,9 +328,8 @@ class Game:
 
         screen.blit(img, (sx, sy))
 
-    # ------------------------------------------------------ #
-    #  TRASH                                                 #
-    # ------------------------------------------------------ #
+
+# ─────────────────────── TRASH ────────────────────────────────────────────────
     # generate all the trash for a lvl, add some trash to the list if you want more trash
     def create_trash(self):
         if self.level == 1:
@@ -383,23 +381,6 @@ class Game:
                 Bin(1100, 2125,"verre"),
                 Bin(1300, 2125,"vetement"),
             ]
-
-    def update_trash_visibility_old(self):
-        """KEPT from original file"""
-        for trash in self.all_trash[:]:
-            screen_x = trash.rect.x - self.camera_x
-            if -50 < screen_x < 1130:
-                if trash not in self.visible_trash:
-                    self.visible_trash.append(trash)
-
-            adjusted_rect = trash.rect.move(-self.camera_x, 0)
-            if adjusted_rect.colliderect(self.player.rect):
-                if not self.carrying:
-                    self.all_trash.remove(trash)
-                    if trash in self.visible_trash:
-                        self.visible_trash.remove(trash)
-                    self.carrying = True
-                    self.carried_trash_type = trash.trash_type
 
     # ========== NEW VERSION (currently used) ==========
     def update_trash_visibility(self, screen_w=1080):
@@ -472,10 +453,8 @@ class Game:
 
 
 
-# ----------------------------- PLATFORM STUFF -----------------------------------
-    # ------------------------------------------------------------------ #
-    #  Platforms per level — Modify here                                 #
-    # ------------------------------------------------------------------ #
+# ─────────────────────── PLATFORMS ────────────────────────────────────────────
+
 
     # If you want to add a STATIC platform, simply put his coordinates in a tuple right here. You don't have to modify anything else.
     # If you want to add a MOVING platform, put in a dictionary from which coordinated to which you want it to move
@@ -555,10 +534,7 @@ class Game:
 
 
 
-# ----------------------ENNEMIS STUFF--------------------------
-    # ----------------------------------------------------- #
-    #  ENNEMIS                                              #
-    # ----------------------------------------------------- #
+# ─────────────────────── ENEMIES ──────────────────────────────────────────────
 
     def bird_spawn(self):
         bird = Bird(self, x=1400, y=200, velocity=4)
@@ -597,86 +573,3 @@ class Game:
                 spike(1000, 2125),
                 spike(1100, 2125),
             ]
-
-
-
-   """ def update_camera(self, screen_w, screen_h, world_w, world_h):
-        # FROM AN OLD FILE
-        """Update camera with deadzone scrolling"""
-        SCROLL_MARGIN = 200
-
-        player_screen_x = self.player.world_x - self.camera_x
-        if player_screen_x > screen_w - SCROLL_MARGIN:
-            self.camera_x = self.player.world_x - (screen_w - SCROLL_MARGIN)
-        elif player_screen_x < SCROLL_MARGIN:
-            self.camera_x = self.player.world_x - SCROLL_MARGIN
-
-        player_screen_y = self.player.world_y - self.camera_y
-        if player_screen_y > screen_h - SCROLL_MARGIN:
-            self.camera_y = self.player.world_y - (screen_h - SCROLL_MARGIN)
-        elif player_screen_y < SCROLL_MARGIN:
-            self.camera_y = self.player.world_y - SCROLL_MARGIN
-
-        self.camera_x = max(0, min(world_w - screen_w, self.camera_x))
-        self.camera_y = max(0, min(world_h - screen_h, self.camera_y))"""
-"""
-    def draw_world(self, screen, bg, cols, rows, cell_w, cell_h, screen_w, screen_h):
-        # FROM AN OLD FILE
-        #Draw the background grid
-        for col in range(cols):
-            for row in range(rows):
-                img = pygame.image.load(f'asset/bg_{col}_{row}.jpg')
-                bg[(col, row)] = pygame.transform.scale(img, (cell_w, cell_h))
-      
-        for col in range(cols):
-            for row in range(rows):
-                screen_x = col * cell_w - self.camera_x
-                screen_y = row * cell_h - self.camera_y
-                if -cell_w < screen_x < screen_w and -cell_h < screen_y < screen_h:
-                    screen.blit(bg[(col, row)], (screen_x, screen_y))"""
-
-   """ def draw_objects(self, screen):
-        # FROM AN OLD FILE
-        """Draw all game objects"""
-        # Draw bins
-        for bin_obj in self.all_bins:
-            screen_x = bin_obj.rect.x - self.camera_x
-            screen_y = bin_obj.rect.y - self.camera_y
-            screen.blit(bin_obj.image, (screen_x, screen_y))
-
-        # Draw trash
-        for trash in self.visible_trash:
-            screen_x = trash.rect.x - self.camera_x
-            screen_y = trash.rect.y - self.camera_y
-            screen.blit(trash.image, (screen_x, screen_y))
-
-        # Draw platforms
-        for platform in self.platforms:
-            screen_x = platform.rect.x - self.camera_x
-            screen_y = platform.rect.y - self.camera_y
-            screen.blit(platform.image, (screen_x, screen_y))
-
-        # Sync and draw player
-        self.player.rect.centerx = int(self.player.world_x - self.camera_x)
-        self.player.rect.bottom = int(self.player.world_y - self.camera_y)
-        screen.blit(self.player.image, self.player.rect)"""
-
-    def draw_ui(self, screen):
-        # FROM AN OLD FILE
-        """Draw UI elements"""
-        font = pygame.font.SysFont(None, 40)
-
-        # Health bar
-        self.player.update_health_bar()
-        screen.blit(self.player.health_image, (10, 50))
-
-        # Score and lives
-        score_text = font.render(f"Score: {self.score}", True, (255, 255, 255))
-        lives_text = font.render(f"Vies: {self.lives}", True, (255, 0, 0))
-        screen.blit(score_text, (10, 10))
-        screen.blit(lives_text, (10, 50))
-
-        # Carrying indicator
-        if self.carrying:
-            carry_text = font.render(f"Tu portes : {self.carried_trash_type}", True, (255, 255, 0))
-            screen.blit(carry_text, (10, 90))
