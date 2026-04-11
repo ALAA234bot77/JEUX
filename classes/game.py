@@ -13,9 +13,7 @@ class Game:
     def __init__(self):
         # ← KEPT from old file
         self.all_players = pygame.sprite.Group()
-
         self.player = Player(self)
-
         # ← KEPT from old file
         self.all_players.add(self.player)
 
@@ -37,7 +35,7 @@ class Game:
         self.visible_trash = []
 
         self.flock = pygame.sprite.Group()
-        self.bird_spawn()
+        #self.bird_spawn()
 
         self.immunity = False
 
@@ -63,12 +61,138 @@ class Game:
         return pygame.sprite.spritecollide(sprite, group, False, pygame.sprite.collide_mask)
 
 
+# ─────────────────────── BACKGROUND ───────────────────────────────────────────
+
+    def load_background(self,bg,cols,rows,cell_w,cell_h):
+        for col in range(cols):
+            for row in range(rows):
+                img = pygame.image.load(f'asset/bg_{col}_{row}.jpg')
+                bg[(row,col)] = pygame.transform.scale(img, (cell_w, cell_h))
+
+    def draw_background(self, screen,bg,cols,rows,cell_w,cell_h,screen_w, screen_h):
+        for col in range(cols):
+            for row in range(rows):
+                screen_x = col*cell_w -self.camera_x
+                screen_y = row*cell_h -self.camera_y
+                if -cell_w < screen_x < screen_w and -cell_h < screen_y < screen_h:
+                    screen.blit(bg[(row,col)], (screen_x, screen_y))
+
+# ─────────────────────── CAMERA ───────────────────────────────────────────────
+    def update_camera(self, screen_w,screen_h, world_w, world_h):
+        SCROLL_MARGIN = 200
+
+        player_screen_x = self.player.world_x - self.camera_x
+        if player_screen_x > screen_w-SCROLL_MARGIN:
+            self.camera_x = self.player.world_x- (screen_w-SCROLL_MARGIN)
+        elif player_screen_x < SCROLL_MARGIN:
+            self.camera_x = self.player.world_x -SCROLL_MARGIN
+
+        player_screen_y = self.player.world_y - self.camera_y
+        if player_screen_y > screen_h-SCROLL_MARGIN:
+            self.camera_y = self.player.world_y - (screen_h-SCROLL_MARGIN)
+        elif player_screen_y < SCROLL_MARGIN:
+            self.camera_y = self.player.world_y -SCROLL_MARGIN
+
+        self.camera_x = max(0, min(world_w - screen_w, self.camera_x))
+        self.camera_y = max(0, min(world_h - screen_h, self.camera_y))
+
+# ─────────────────────── DRAWING ──────────────────────────────────────────────
+    def draw_objects(self, screen):
+        # FROM AN OLD FILE
+        """Draw all game objects"""
+        # Draw bins
+        for bin_obj in self.all_bins:
+            screen_x = bin_obj.rect.x - self.camera_x
+            screen_y = bin_obj.rect.y - self.camera_y
+            screen.blit(bin_obj.image, (screen_x, screen_y))
+
+        # Draw trash
+        for trash in self.visible_trash:
+            screen_x = trash.rect.x - self.camera_x
+            screen_y = trash.rect.y - self.camera_y
+            screen.blit(trash.image, (screen_x, screen_y))
+
+        # Draw platforms
+        for platform in self.platforms:
+            if isinstance(platform, MovingPlatform): #to update them before drawing them
+                platform.update()
+            screen_x = platform.rect.x - self.camera_x
+            screen_y = platform.rect.y - self.camera_y
+            screen.blit(platform.image, (screen_x, screen_y))
+
+        # Draw the spikes
+        for spike in self.all_spike:
+            screen_x = spike.rect.x - self.camera_x
+            screen_y = spike.rect.y - self.camera_y
+            screen.blit(spike.image, (screen_x, screen_y))
+
+        # Sync and draw player
+        self.player.rect.centerx = int(self.player.world_x - self.camera_x)
+        self.player.rect.bottom = int(self.player.world_y - self.camera_y)
+        screen.blit(self.player.image, self.player.rect)
+
+        # Draw carried trash + arc preview
+        self.draw_carried_trash(screen)
+        mouse_pos = pygame.mouse.get_pos()
+        if self.throw_state == "dragging" and self.carrying:
+            self._draw_arc_preview(screen, mouse_pos)
+            self._draw_bin_highlight(screen, mouse_pos)
 
 
+    def draw_ui(self,screen,lose=False):
+        font = pygame.font.SysFont("Arial", 20)
 
-# ----------------------- TRASH STUFF ----------------------------
+        self.player.update_health_bar()
+        screen.blit(pygame.transform.scale(self.player.health_image, (120, 50)), (10, 50))
 
-    #  THROW / ARC SYSTEM                                                 #
+        score_text = font.render(f"Score: {self.score}", True, (255, 255, 255))
+        screen.blit(score_text, (10, 10))
+
+        if self.carrying:
+            carry_text = font.render(f"Tu portes : {self.carried_trash_type}", True, (255, 255, 0))
+            screen.blit(carry_text, (10, 90))
+
+        if self.player.health == 0:
+            end_font = pygame.font.SysFont(None, 80)
+            end_text = end_font.render("Game Over", True, (255, 0, 0))
+            screen.blit(end_text, (450, 350))
+
+        if lose and self.next_lvl() == "victory":
+            win_font = pygame.font.SysFont(None, 80)
+            win_text = win_font.render("Victory!", True, (0, 0, 255))
+            screen.blit(win_text, (450, 350))
+
+
+        #arc throw moved from main
+    def _draw_arc_preview(self, screen, mouse_pos):
+        points = self.get_trajectory_points(mouse_pos)
+        for i, pt in enumerate(points):
+            if i % 3 == 0:
+                pygame.draw.circle(screen, (255, 255, 255), pt, 3)
+        hx, hy = self._hold_pos()
+        hold_sx = int(hx - self.camera_x)
+        hold_sy = int(hy - self.camera_y)
+        pygame.draw.line(screen, (200, 100, 100), (hold_sx, hold_sy), mouse_pos, 2)
+
+
+    def _draw_bin_highlight(self, screen, mouse_pos):
+        # FIX: Same as above — moved here from Level_1.py.
+        aimed = self.get_aimed_bin(mouse_pos)
+        if aimed is None:
+            return
+        correct = (aimed.bin_type == self.carried_trash_type)
+        colour = (80, 255, 80) if correct else (255, 80, 80)
+        sx = int(aimed.rect.x - self.camera_x) - 5
+        sy = int(aimed.rect.y - self.camera_y) - 5
+        w = aimed.rect.width + 10
+        h = aimed.rect.height + 10
+        pygame.draw.rect(screen, colour, (sx, sy, w, h), 4, border_radius=6)
+        font_s = pygame.font.SysFont(None, 28)
+        label = font_s.render(aimed.bin_type, True, colour)
+        screen.blit(label, (sx + w // 2 - label.get_width() // 2, sy - 22))
+
+# ─────────────────────── THROW / ARC SYSTEM ───────────────────────────────────
+
 
     def _hold_pos(self):
         """World position of the floating trash (above player head)."""  # ← NEW
@@ -204,9 +328,8 @@ class Game:
 
         screen.blit(img, (sx, sy))
 
-    # ------------------------------------------------------ #
-    #  TRASH                                                 #
-    # ------------------------------------------------------ #
+
+# ─────────────────────── TRASH ────────────────────────────────────────────────
     # generate all the trash for a lvl, add some trash to the list if you want more trash
     def create_trash(self):
         if self.level == 1:
@@ -258,23 +381,6 @@ class Game:
                 Bin(1100, 2125,"verre"),
                 Bin(1300, 2125,"vetement"),
             ]
-
-    def update_trash_visibility_old(self):
-        """KEPT from original file"""
-        for trash in self.all_trash[:]:
-            screen_x = trash.rect.x - self.camera_x
-            if -50 < screen_x < 1130:
-                if trash not in self.visible_trash:
-                    self.visible_trash.append(trash)
-
-            adjusted_rect = trash.rect.move(-self.camera_x, 0)
-            if adjusted_rect.colliderect(self.player.rect):
-                if not self.carrying:
-                    self.all_trash.remove(trash)
-                    if trash in self.visible_trash:
-                        self.visible_trash.remove(trash)
-                    self.carrying = True
-                    self.carried_trash_type = trash.trash_type
 
     # ========== NEW VERSION (currently used) ==========
     def update_trash_visibility(self, screen_w=1080):
@@ -347,10 +453,8 @@ class Game:
 
 
 
-# ----------------------------- PLATFORM STUFF -----------------------------------
-    # ------------------------------------------------------------------ #
-    #  Platforms per level — Modify here                                 #
-    # ------------------------------------------------------------------ #
+# ─────────────────────── PLATFORMS ────────────────────────────────────────────
+
 
     # If you want to add a STATIC platform, simply put his coordinates in a tuple right here. You don't have to modify anything else.
     # If you want to add a MOVING platform, put in a dictionary from which coordinated to which you want it to move
@@ -430,10 +534,7 @@ class Game:
 
 
 
-# ----------------------ENNEMIS STUFF--------------------------
-    # ----------------------------------------------------- #
-    #  ENNEMIS                                              #
-    # ----------------------------------------------------- #
+# ─────────────────────── ENEMIES ──────────────────────────────────────────────
 
     def bird_spawn(self):
         bird = Bird(self, x=1400, y=200, velocity=4)
@@ -472,81 +573,3 @@ class Game:
                 spike(1000, 2125),
                 spike(1100, 2125),
             ]
-
-
-
-    def update_camera(self, screen_w, screen_h, world_w, world_h):
-        # FROM AN OLD FILE
-        """Update camera with deadzone scrolling"""
-        SCROLL_MARGIN = 200
-
-        player_screen_x = self.player.world_x - self.camera_x
-        if player_screen_x > screen_w - SCROLL_MARGIN:
-            self.camera_x = self.player.world_x - (screen_w - SCROLL_MARGIN)
-        elif player_screen_x < SCROLL_MARGIN:
-            self.camera_x = self.player.world_x - SCROLL_MARGIN
-
-        player_screen_y = self.player.world_y - self.camera_y
-        if player_screen_y > screen_h - SCROLL_MARGIN:
-            self.camera_y = self.player.world_y - (screen_h - SCROLL_MARGIN)
-        elif player_screen_y < SCROLL_MARGIN:
-            self.camera_y = self.player.world_y - SCROLL_MARGIN
-
-        self.camera_x = max(0, min(world_w - screen_w, self.camera_x))
-        self.camera_y = max(0, min(world_h - screen_h, self.camera_y))
-
-    def draw_world(self, screen, bg, cols, rows, cell_w, cell_h, screen_w, screen_h):
-        # FROM AN OLD FILE
-        """Draw the background grid"""
-        for col in range(cols):
-            for row in range(rows):
-                screen_x = col * cell_w - self.camera_x
-                screen_y = row * cell_h - self.camera_y
-                if -cell_w < screen_x < screen_w and -cell_h < screen_y < screen_h:
-                    screen.blit(bg[(col, row)], (screen_x, screen_y))
-
-    def draw_objects(self, screen):
-        # FROM AN OLD FILE
-        """Draw all game objects"""
-        # Draw bins
-        for bin_obj in self.all_bins:
-            screen_x = bin_obj.rect.x - self.camera_x
-            screen_y = bin_obj.rect.y - self.camera_y
-            screen.blit(bin_obj.image, (screen_x, screen_y))
-
-        # Draw trash
-        for trash in self.visible_trash:
-            screen_x = trash.rect.x - self.camera_x
-            screen_y = trash.rect.y - self.camera_y
-            screen.blit(trash.image, (screen_x, screen_y))
-
-        # Draw platforms
-        for platform in self.platforms:
-            screen_x = platform.rect.x - self.camera_x
-            screen_y = platform.rect.y - self.camera_y
-            screen.blit(platform.image, (screen_x, screen_y))
-
-        # Sync and draw player
-        self.player.rect.centerx = int(self.player.world_x - self.camera_x)
-        self.player.rect.bottom = int(self.player.world_y - self.camera_y)
-        screen.blit(self.player.image, self.player.rect)
-
-    def draw_ui(self, screen):
-        # FROM AN OLD FILE
-        """Draw UI elements"""
-        font = pygame.font.SysFont(None, 40)
-
-        # Health bar
-        self.player.update_health_bar()
-        screen.blit(self.player.health_image, (10, 50))
-
-        # Score and lives
-        score_text = font.render(f"Score: {self.score}", True, (255, 255, 255))
-        lives_text = font.render(f"Vies: {self.lives}", True, (255, 0, 0))
-        screen.blit(score_text, (10, 10))
-        screen.blit(lives_text, (10, 50))
-
-        # Carrying indicator
-        if self.carrying:
-            carry_text = font.render(f"Tu portes : {self.carried_trash_type}", True, (255, 255, 0))
-            screen.blit(carry_text, (10, 90))
