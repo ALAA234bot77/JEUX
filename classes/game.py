@@ -96,7 +96,100 @@ class Game:
         self.camera_x = max(0, min(world_w - screen_w, self.camera_x))
         self.camera_y = max(0, min(world_h - screen_h, self.camera_y))
 
+# ─────────────────────── DRAWING ──────────────────────────────────────────────
+    def draw_objects(self, screen):
+        # FROM AN OLD FILE
+        """Draw all game objects"""
+        # Draw bins
+        for bin_obj in self.all_bins:
+            screen_x = bin_obj.rect.x - self.camera_x
+            screen_y = bin_obj.rect.y - self.camera_y
+            screen.blit(bin_obj.image, (screen_x, screen_y))
 
+        # Draw trash
+        for trash in self.visible_trash:
+            screen_x = trash.rect.x - self.camera_x
+            screen_y = trash.rect.y - self.camera_y
+            screen.blit(trash.image, (screen_x, screen_y))
+
+        # Draw platforms
+        for platform in self.platforms:
+            if isinstance(platform, MovingPlatform): #to update them before drawing them
+                platform.update()
+            screen_x = platform.rect.x - self.camera_x
+            screen_y = platform.rect.y - self.camera_y
+            screen.blit(platform.image, (screen_x, screen_y))
+
+        # Draw the spikes
+        for spike in self.all_spike:
+            screen_x = spike.rect.x - self.camera_x
+            screen_y = spike.rect.y - self.camera_y
+            screen.blit(spike.image, (screen_x, screen_y))
+
+        # Sync and draw player
+        self.player.rect.centerx = int(self.player.world_x - self.camera_x)
+        self.player.rect.bottom = int(self.player.world_y - self.camera_y)
+        screen.blit(self.player.image, self.player.rect)
+
+        # Draw carried trash + arc preview
+        self.draw_carried_trash(screen)
+        mouse_pos = pygame.mouse.get_pos()
+        if self.throw_state == "dragging" and self.carrying:
+            self._draw_arc_preview(screen, mouse_pos)
+            self._draw_bin_highlight(screen, mouse_pos)
+
+
+    def draw_ui(self,screen,lose=False):
+        font = pygame.font.SysFont("Arial", 20)
+
+        self.player.update_health_bar()
+        screen.blit(pygame.transform.scale(self.player.health_image, (120, 50)), (10, 50))
+
+        score_text = font.render(f"Score: {self.score}", True, (255, 255, 255))
+        screen.blit(score_text, (10, 10))
+
+        if self.carrying:
+            carry_text = font.render(f"Tu portes : {self.carried_trash_type}", True, (255, 255, 0))
+            screen.blit(carry_text, (10, 90))
+
+        if self.player.health == 0:
+            end_font = pygame.font.SysFont(None, 80)
+            end_text = end_font.render("Game Over", True, (255, 0, 0))
+            screen.blit(end_text, (450, 350))
+
+        if lose and self.next_lvl() == "victory":
+            win_font = pygame.font.SysFont(None, 80)
+            win_text = win_font.render("Victory!", True, (0, 0, 255))
+            screen.blit(win_text, (450, 350))
+
+
+        #arc throw moved from main
+        def _draw_arc_preview(self, screen, mouse_pos):
+            points = self.get_trajectory_points(mouse_pos)
+            for i, pt in enumerate(points):
+                if i % 3 == 0:
+                    pygame.draw.circle(screen, (255, 255, 255), pt, 3)
+            hx, hy = self._hold_pos()
+            hold_sx = int(hx - self.camera_x)
+            hold_sy = int(hy - self.camera_y)
+            pygame.draw.line(screen, (200, 100, 100), (hold_sx, hold_sy), mouse_pos, 2)
+
+
+        def _draw_bin_highlight(self, screen, mouse_pos):
+            # FIX: Same as above — moved here from Level_1.py.
+            aimed = self.get_aimed_bin(mouse_pos)
+            if aimed is None:
+                return
+            correct = (aimed.bin_type == self.carried_trash_type)
+            colour = (80, 255, 80) if correct else (255, 80, 80)
+            sx = int(aimed.rect.x - self.camera_x) - 5
+            sy = int(aimed.rect.y - self.camera_y) - 5
+            w = aimed.rect.width + 10
+            h = aimed.rect.height + 10
+            pygame.draw.rect(screen, colour, (sx, sy, w, h), 4, border_radius=6)
+            font_s = pygame.font.SysFont(None, 28)
+            label = font_s.render(aimed.bin_type, True, colour)
+            screen.blit(label, (sx + w // 2 - label.get_width() // 2, sy - 22))
 
 # ----------------------- TRASH STUFF ----------------------------
 
