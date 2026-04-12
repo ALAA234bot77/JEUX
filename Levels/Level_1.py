@@ -1,5 +1,6 @@
 import pygame
 from classes.game import Game
+from classes.timer import Timer
 from classes.platform import Platform, MovingPlatform
 
 """
@@ -17,7 +18,7 @@ def draw_arc_preview(screen, game, mouse_pos):  # ← NEW
 
 
 def draw_bin_highlight(screen, game, mouse_pos):  # ← NEW
-    
+
     aimed = game.get_aimed_bin(mouse_pos)
     if aimed is None:
         return
@@ -33,17 +34,11 @@ def draw_bin_highlight(screen, game, mouse_pos):  # ← NEW
     screen.blit(label, (sx + w // 2 - label.get_width() // 2, sy - 22))
 """
 
-
-
-
-
 def level1(screen):
-
     clock = pygame.time.Clock()
-
+    timer = Timer(300)
     SCREEN_W, SCREEN_H = 1080, 720
     pygame.display.set_caption("Trash Cat 67")
-
 
     game = Game()
 
@@ -58,9 +53,21 @@ def level1(screen):
     game.load_background(bg, COLS, ROWS, CELL_W, CELL_H)
 
     running = True
-    #camera_x = 0
-    #camera_y = 0
+    # camera_x = 0
+    # camera_y = 0
     lose = False
+    # Niveau 1 = col 0 (x 0-1079), niveau 2 = col 1 (x 1080-2159), niveau 3 = col 2 (x 2160-3239)
+    LEVEL_X_MIN = {1: 0, 2: 1080, 3: 2160}
+    LEVEL_X_MAX = {1: 1080, 2: 2160, 3: 3240}
+    LEVEL_SPAWN_X = {1: 200, 2: 1280, 3: 2360}  # spawn x au bord gauche de chaque niveau
+    LEVEL_SPAWN_Y = 2125
+
+    transitioning = False
+    fading_in = False
+    fading_out = False
+    fade_alpha = 0
+    fade_surface = pygame.Surface((SCREEN_W, SCREEN_H))
+    fade_surface.fill((0, 0, 0))
 
     while True:
         # -------- Events --------
@@ -73,21 +80,30 @@ def level1(screen):
                 game.pressed[event.key] = True
                 if event.key == pygame.K_e:
                     game.throw_trash_instant()
+                if event.key == pygame.K_p:  # ← déplacé ici
+                    timer.set_pause()
+                    if timer.paused:
+                        game.pressed = {}
+                if event.key == pygame.K_r and timer.finished:  # ← déplacé ici
+                    timer.restart()
+                    game.__init__()
+                    lose = False
+                    transitioning = False
+                    fading_in = False
+                    fading_out = False
+                    fade_alpha = 0
 
             elif event.type == pygame.KEYUP:
                 game.pressed[event.key] = False
 
-            # ── Throw: drag starts on left click (only when carrying) ──
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 game.start_drag(event.pos)
 
-            # ── Throw: release launches projectile ──
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 game.release_drag(event.pos)
 
-
         # -------- Player movement in world coordinates --------
-        if not lose:  # when game over you can move but the game don't close instantly
+        if not lose and not timer.paused and not timer.finished:
             if game.pressed.get(pygame.K_d):
                 game.player.move_right()
             if game.pressed.get(pygame.K_q):
@@ -109,9 +125,12 @@ def level1(screen):
         game.update_projectile()  # advance projectile physics every frame
 
         # -------- Clamp player to world edges --------
-        game.player.world_x = max(75, min(WORLD_W - 75, game.player.world_x))
+        # Bloque le joueur dans la colonne de son niveau tant que goal > 0
+        game.player.world_x = max(
+            LEVEL_X_MIN[game.level] + 75,
+            min(LEVEL_X_MAX[game.level] - 75, game.player.world_x)
+        )
         game.player.world_y = max(0, min(WORLD_H - 30, game.player.world_y))
-
         # -------- Camera deadzone scrolling --------
         game.update_camera(SCREEN_W, SCREEN_H, WORLD_W, WORLD_H)
 
@@ -120,18 +139,68 @@ def level1(screen):
         game.try_pickup_trash()
         game.damage()
 
+        # Gravité des déchets sur les plateformes
+        for trash in game.all_trash:
+            trash.apply_gravity(game.platforms, WORLD_H)
+
+        # Déclenchement transition quand goal == 0
+        if game.goal == 0 and not transitioning and not lose:
+            transitioning = True
+            fading_in = True
+
+        # Animation fondu
+        if transitioning:
+            if fading_in:
+                fade_alpha = min(255, fade_alpha + 8)
+                if fade_alpha >= 255:
+                    fading_in = False
+                    fading_out = True
+                    result = game.next_lvl()
+                    if result == 'victory':
+                        lose = True
+                        transitioning = False
+                    else:
+                        game.player.world_x = LEVEL_SPAWN_X[game.level]
+            elif fading_out:
+                fade_alpha = max(0, fade_alpha - 8)
+                if fade_alpha <= 0:
+                    fading_out = False
+                    transitioning = False
+
         # -------- Check win/lose --------
-        if game.player.health <= 0:
+        if game.player.health <= 0 and not lose:
             lose = True
-        if game.next_lvl() == 'Victory':
-            lose = True
+            game.pressed = {}
+            timer.finished = True  #game over
 
         # -------- Draw --------
         game.draw_background(screen, bg, COLS, ROWS, CELL_W, CELL_H, SCREEN_W, SCREEN_H)
         game.draw_objects(screen)
         game.draw_ui(screen, lose)
+        timer.update()
+        timer.display_timer(screen)
+        timer.display_pause(screen)
+        timer.display_game_over(screen)  # s'affiche si timer.finished = True
 
+        if lose and game.level >= 3 and game.goal == 0:
+            w, h = screen.get_size()
+            overlay = pygame.Surface((w, h), pygame.SRCALPHA)
+            overlay.fill((0, 0, 0, 180))
+            screen.blit(overlay, (0, 0))
+            font_big = pygame.font.SysFont("consolas", 72, True)
+            font_sub = pygame.font.SysFont("consolas", 28)
+            win_txt = font_big.render("VICTORY!", True, (80, 255, 150))
+            screen.blit(win_txt, win_txt.get_rect(center=(w // 2, h // 2 - 80)))
+            sub_txt = font_sub.render("Press R to restart", True, (59, 113, 128))
+            screen.blit(sub_txt, sub_txt.get_rect(center=(w // 2, h // 2 + 60)))
+
+        # Gestion touche R pour restart
+        if fade_alpha > 0:
+            fade_surface.set_alpha(fade_alpha)
+            screen.blit(fade_surface, (0, 0))
         pygame.display.flip()
+
+
         clock.tick(60)
         """
         game.camera_x = camera_x
@@ -223,7 +292,6 @@ def level1(screen):
         clock.tick(60)"""
 
 
-
 """# Start the game
 menu_choice = main_menu.main_menu(screen)
 
@@ -237,7 +305,6 @@ while menu_choice == "credits":
     elif credits_choice == "quit":
         pygame.quit()
         exit()"""
-
 
 """running = True
 camera_x = 0
@@ -404,7 +471,6 @@ while running:
 
     pygame.display.flip()
     clock.tick(60)"""
-
 
 
 

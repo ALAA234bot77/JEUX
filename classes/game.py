@@ -21,7 +21,7 @@ class Game:
         self.score = 0
         self.lives = 3 # plus utile mais je garde au cas ou quelqu'un veille re utiliser des truc que j'ai passer en commentaire
         self.level = 1
-        self.goal = 100
+        self.goal = 0
         self.carrying = False
         self.carried_trash_type = None
         self.carried_trash_image = None
@@ -152,15 +152,9 @@ class Game:
             carry_text = font.render(f"Tu portes : {self.carried_trash_type}", True, (255, 255, 0))
             screen.blit(carry_text, (10, 90))
 
-        if self.player.health == 0:
-            end_font = pygame.font.SysFont(None, 80)
-            end_text = end_font.render("Game Over", True, (255, 0, 0))
-            screen.blit(end_text, (450, 350))
 
-        if lose and self.next_lvl() == "victory":
-            win_font = pygame.font.SysFont(None, 80)
-            win_text = win_font.render("Victory!", True, (0, 0, 255))
-            screen.blit(win_text, (450, 350))
+
+
 
 
         #arc throw moved from main
@@ -235,6 +229,27 @@ class Game:
         self.proj_vy += self.PROJ_GRAVITY
         self.proj_world_x += self.proj_vx
         self.proj_world_y += self.proj_vy
+
+        def platform_spawn(self):
+            self.platforms.empty()  # On vide pour éviter les doublons
+            o = (self.level - 1) * 1080
+            positions = self.PLATFORMS_BY_LEVEL.get(self.level, [])
+
+            for entry in positions:
+                if isinstance(entry, tuple):
+                    x_relative, y = entry
+                    # On ajoute l'offset 'o' pour placer la plateforme dans le bon niveau
+                    platform = Platform(self, x=o + x_relative, y=y)
+                elif isinstance(entry, dict):
+                    platform = MovingPlatform(
+                        self,
+                        x=o + entry["x"],
+                        y=entry["y"],
+                        target_x=o + entry["target_x"],  # Ajout de o ici aussi !
+                        target_y=entry["target_y"],  # On ne touche pas au Y global
+                        speed=entry.get("speed", 2)
+                    )
+                self.platforms.add(platform)
 
         # Bin collision
         for bin_obj in self.all_bins:
@@ -332,55 +347,58 @@ class Game:
 # ─────────────────────── TRASH ────────────────────────────────────────────────
     # generate all the trash for a lvl, add some trash to the list if you want more trash
     def create_trash(self):
+        o = (self.level - 1) * 1080  # origin : 0, 1080 ou 2160
         if self.level == 1:
-            self.goal = 4 # nb de déchet a récupérer pour le lvl
+            self.goal = 4
             return [
-                Trash(800, 2125,"recyclable"),
-                Trash(1200, 2125,"menager"),
-                Trash(1600, 2125,"recyclable"),
-                Trash(2000, 2125,"menager"),
+                Trash(o + 300, 2125, "recyclable"),
+                Trash(o + 500, 2125, "menager"),
+                Trash(o + 600, 2125, "recyclable"),
+                Trash(o + 900, 2125, "menager"),
             ]
         elif self.level == 2:
             self.goal = 4
             return [
-                Trash(800, 2125,"recyclable"),
-                Trash(1200, 2125,"menager"),
-                Trash(1600, 2125,"compost"),
-                Trash(2000, 2125,"papier"),
+                Trash(o + 300, 2125, "recyclable"),
+                Trash(o + 500, 2125, "menager"),
+                Trash(o + 700, 2125, "compost"),
+                Trash(o + 900, 2125, "papier"),
             ]
         elif self.level == 3:
             self.goal = 6
             return [
-                Trash(800, 2125,"recyclable"),
-                Trash(1200, 2125,"menager"),
-                Trash(1600, 2125,"compost"),
-                Trash(2000, 2125,"papier"),
-                Trash(2400, 2125,"verre"),
-                Trash(2800, 2125,"vetement"),
+                Trash(o + 200, 2125, "recyclable"),
+                Trash(o + 380, 2125, "menager"),
+                Trash(o + 520, 2125, "compost"),
+                Trash(o + 660, 2125, "papier"),
+                Trash(o + 800, 2125, "verre"),
+                Trash(o + 940, 2125, "vetement"),
             ]
 
     def create_bins(self):
+        o = (self.level - 1) * 1080
         if self.level == 1:
             return [
-                Bin(300, 2125,"recyclable"),
-                Bin(500, 2125,"menager"),
+                Bin(o + 100, 2125, "recyclable"),
+                Bin(o + 180, 2125, "menager"),
             ]
         elif self.level == 2:
             return [
-                Bin(300, 2125,"recyclable"),
-                Bin(500, 2125,"menager"),
-                Bin(700, 2125,"compost"),
-                Bin(900, 2125,"papier"),
+                Bin(o + 80, 2125, "recyclable"),
+                Bin(o + 160, 2125, "menager"),
+                Bin(o + 240, 2125, "compost"),
+                Bin(o + 320, 2125, "papier"),
             ]
         elif self.level == 3:
             return [
-                Bin(300, 2125,"recyclable"),
-                Bin(500, 2125,"menager"),
-                Bin(700, 2125,"compost"),
-                Bin(900, 2125,"papier"),
-                Bin(1100, 2125,"verre"),
-                Bin(1300, 2125,"vetement"),
+                Bin(o + 60, 2125, "recyclable"),
+                Bin(o + 130, 2125, "menager"),
+                Bin(o + 200, 2125, "compost"),
+                Bin(o + 270, 2125, "papier"),
+                Bin(o + 340, 2125, "verre"),
+                Bin(o + 410, 2125, "vetement"),
             ]
+
 
     # ========== NEW VERSION (currently used) ==========
     def update_trash_visibility(self, screen_w=1080):
@@ -438,18 +456,25 @@ class Game:
                 self.carried_trash_type = None
                 return
 
-
     def next_lvl(self):
-        if self.goal == 0:
-            self.level += 1
-            self.all_trash = self.create_trash()
-            self.all_bins = self.create_bins()
-            self.all_spike = self.create_spike()
-            self.player.health = 3
-            self.player.update_health_bar()
-        if self.level == 4:
-            self.goal = 5
+        self.level += 1
+        if self.level > 3:
+            self.level = 3
             return 'victory'
+        self.all_trash = self.create_trash()
+        self.all_bins = self.create_bins()
+        self.all_spike = self.create_spike()
+        self.platforms.empty()
+        self.platform_spawn()
+        self.player.health = 3
+        self.player.update_health_bar()
+        self.carrying = False
+        self.carried_trash_type = None
+        self.carried_trash_image = None
+        self.throw_state = "idle"
+        return None
+
+
 
 
 
@@ -458,46 +483,47 @@ class Game:
 
     # If you want to add a STATIC platform, simply put his coordinates in a tuple right here. You don't have to modify anything else.
     # If you want to add a MOVING platform, put in a dictionary from which coordinated to which you want it to move
+
     PLATFORMS_BY_LEVEL = {
         1: [
-            (800, 1980),
-            (450, 1950),
-            (200, 1850),
-            {"x": 600, "y": 1700, "target_x": 1100, "target_y": 1700, "speed": 2},
-            {"x": 1200, "y": 2000, "target_x": 1200, "target_y": 1300, "speed": 2}
+            (50, 250),
+            (300, 1980),
+            (600, 1920),
+            {"x": 600, "y": 1780, "target_x": 750, "target_y": 1780, "speed": 2},
         ],
         2: [
-            (800, 1980),
-
+            (800, 1260),
+            (450, 1230),
+            (200, 1130),
+            {"x": 600, "y": 980, "target_x": 1100, "target_y": 980, "speed": 2},
         ],
         3: [
-            (800, 1980),
-
-        ]
+            (800, 540),
+            (450, 510),
+            (200, 410),
+            {"x": 600, "y": 260, "target_x": 1100, "target_y": 260, "speed": 3},
+        ],
     }
 
     def platform_spawn(self):
-
-        # Look up the platform positions for the current level (liste vide si niveau inconnu)
+        self.platforms.empty() # On vide pour éviter les doublons
+        o = (self.level - 1) * 1080
         positions = self.PLATFORMS_BY_LEVEL.get(self.level, [])
 
         for entry in positions:
             if isinstance(entry, tuple):
-                x, y = entry
-                platform = Platform(self, x=x, y=y)
+                x_relative, y = entry
+                # On ajoute l'offset 'o' pour placer la plateforme dans le bon niveau
+                platform = Platform(self, x=o + x_relative, y=y)
             elif isinstance(entry, dict):
-                # Moving platform — unpack all parameters from the dict
                 platform = MovingPlatform(
                     self,
-                    x=entry["x"],
+                    x= o + entry["x"],
                     y=entry["y"],
-                    target_x=entry["target_x"],
-                    target_y=entry["target_y"],
-                    speed=entry.get("speed", 2),  # Default speed = 2 if not specified
-                    width=entry.get("width", 200),  # Default width = 200 if not specified
-                    height=entry.get("height", 40)  # Default height = 40 if not specified
+                    target_x= o + entry["target_x"], # Ajout de o ici aussi !
+                    target_y=entry["target_y"],      # On ne touche pas au Y global
+                    speed=entry.get("speed", 2)
                 )
-
             self.platforms.add(platform)
 
     def check_platform_collision(self):
@@ -550,26 +576,15 @@ class Game:
             if (abs(self.player.world_x - spike.rect.x) > 70)or((self.player.world_y - spike.rect.bottom) > 70):
                 spike.immunity = False
 
-
     def create_spike(self):
+        o = (self.level - 1) * 1080
         if self.level == 1:
-            return [
-                spike(700, 2125),
-                spike(200, 2125),
-            ]
+            return [spike(o + 400, 2125), spike(o + 700, 2125)]
         elif self.level == 2:
-            return [
-                spike(700, 2125),
-                spike(800, 2125),
-                spike(900, 2125),
-                spike(750, 2125),
-            ]
+            return [spike(o + 300, 2125), spike(o + 450, 2125),
+                    spike(o + 600, 2125), spike(o + 750, 2125)]
         elif self.level == 3:
-            return [
-                spike(600, 2125),
-                spike(700, 2125),
-                spike(800, 2125),
-                spike(900, 2125),
-                spike(1000, 2125),
-                spike(1100, 2125),
-            ]
+            return [spike(o + 250, 2125), spike(o + 380, 2125),
+                    spike(o + 510, 2125), spike(o + 640, 2125),
+                    spike(o + 770, 2125), spike(o + 900, 2125)]
+

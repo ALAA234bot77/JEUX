@@ -204,7 +204,7 @@ class Timer:
         screen.blit(go_txt, go_rect)#affiche le texte go_txt à la place go_rect
 
         # sous titresub tiltle
-        sub_txt = self.font_sub.render("Time is over!", True, (200, 200, 200))
+        sub_txt = self.font_sub.render("Game is over!", True, (200, 200, 200))
         sub_rect = sub_txt.get_rect(center = (w // 2, h // 2))
         screen.blit(sub_txt, sub_rect)
 
