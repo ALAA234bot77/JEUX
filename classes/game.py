@@ -426,13 +426,13 @@ class Game:
                     self.score += 1
                     self.goal -= 1
                     print(self.goal)
-                    print(f"✅ Bravo ! Score : {self.score}")
+                    print(f"✅ Congrats ! Score : {self.score}")
                 else:
                     self.goal -= 1
                     print(self.goal)
                     self.player.health -= 1
                     self.player.update_health_bar()
-                    print(f"❌ Mauvaise poubelle ! Vies : {self.player.health}")
+                    print(f"❌ Wrong bin ! Lives : {self.player.health}")
 
                 self.carrying = False
                 self.carried_trash_type = None
