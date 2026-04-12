@@ -7,7 +7,7 @@ class Platform(pygame.sprite.Sprite):
         super().__init__()
 
         # Load the platform and well-size it
-        original_image = pygame.image.load('asset/platform/pf_1.png')
+        original_image = pygame.image.load('asset/platform/plateform.png')
         self.image = pygame.transform.scale(original_image, (width, height))
         self.rect = self.image.get_rect()
 

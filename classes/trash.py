@@ -8,27 +8,21 @@ class Trash(pygame.sprite.Sprite):
 
         # Forme différente par couleur en attendant les images
         if trash_type == "recyclable":
-            self.image = pygame.Surface((40, 40))
-            self.image.fill((0, 100, 255))    # bleu = plastique
+            original_image = pygame.image.load('asset/trash/plastic.png')   # bleu = plastique
         elif trash_type == "menager":
-            self.image = pygame.Surface((35, 50))
-            self.image.fill((100, 100, 100))  # gris = sac poubelle
+            original_image = pygame.image.load('asset/trash/menager.png')# gris = sac poubelle
         elif trash_type == "compost":
-            self.image = pygame.Surface((40, 40))
-            self.image.fill((0, 180, 0))      # vert = nourriture
+            original_image = pygame.image.load('asset/trash/apple.png')      # vert = nourriture
         elif trash_type == "paper":
-            self.image = pygame.Surface((50, 35))
-            self.image.fill((255, 220, 0))    # jaune = journal
-        elif trash_type == "glass":
-            self.image = pygame.Surface((30, 55))
-            self.image.fill((0, 200, 200))    # cyan = bouteille
-        elif trash_type == "paper":
-            self.image = pygame.Surface((50, 35))
-            self.image.fill((255, 220, 0))
-        elif trash_type == "clothing":
-            self.image = pygame.Surface((50, 40))
-            self.image.fill((200, 0, 200))    # violet = t-shirt
+            original_image = pygame.image.load('asset/trash/papier.png')
 
+        elif trash_type == "glass":
+            original_image = pygame.image.load('asset/trash/glass.png')
+
+        elif trash_type == "clothing":
+            original_image = pygame.image.load('asset/trash/clothing.png')
+
+        self.image = pygame.transform.scale(original_image, (90, 90))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.bottom = y
