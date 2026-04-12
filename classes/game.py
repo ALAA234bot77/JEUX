@@ -605,36 +605,17 @@ class Game:
             self.platforms.add(platform)
 
     def check_platform_collision(self):
-        # Check if the player is actually on a platform or something
-
-        # Build a rect representing the player's position in WORLD coordinates
         player_rect = self.player.rect.copy()
-        player_rect.centerx = int(self.player.world_x)     # World X center of the player
-        player_rect.bottom = int(self.player.world_y)      # World Y feet of the player
+        player_rect.centerx = int(self.player.world_x)
+        player_rect.bottom = int(self.player.world_y)
 
         for platform in self.platforms:
-            # Check if the player's feet are within the vertical landing zone of the platform
-            if (player_rect.bottom >= platform.rect.top - 5 and
-                    player_rect.bottom <= platform.rect.top + 15 and
-                    player_rect.right > platform.rect.left + 5 and
-                    player_rect.left < platform.rect.right - 5):
-
-                # Only snap if the player is falling (jump_velocity > 0)
-                if self.player.jump_velocity > 0:
+            if platform.rect.colliderect(player_rect):
+                if self.player.jump_velocity > 0 and player_rect.bottom <= platform.rect.top + 15:
                     self.player.world_y = platform.rect.top
                     self.player.jump_velocity = 0
                     self.player.on_ground = True
-
-                    if isinstance(platform, MovingPlatform):
-                        self.player.world_x += platform.delta_x  # Slide player horizontally with platform
-                        self.player.world_y += platform.delta_y
-
-                    return True
-
-                return False
-
-        return False
-
+                    return
 
 
 

@@ -60,10 +60,6 @@ def level1(screen):
     # camera_x = 0
     # camera_y = 0
     lose = False
-    # Niveau 1 = col 0 (x 0-1079), niveau 2 = col 1 (x 1080-2159), niveau 3 = col 2 (x 2160-3239)
-    level_x_min= {1: 0, 2: 1080, 3: 2160}
-    level_x_max = {1: 1080, 2: 2160, 3: 3240}
-    level_spawn_x = {1: 200, 2: 1280, 3: 2360}  # spawn x au bord gauche de chaque niveau
     #transition entre levels
     transitioning = False
     fading_in = False
@@ -107,29 +103,13 @@ def level1(screen):
                 game.release_drag(event.pos)
 
         # -------- Player movement in world coordinates --------
-        if not lose and not timer.paused and not timer.finished:
+        if not lose and not timer.paused and not timer.finished and not transitioning:
             if game.pressed.get(pygame.K_d):
                 game.player.move_right()
             if game.pressed.get(pygame.K_q):
                 game.player.move_left()
             if game.pressed.get(pygame.K_SPACE):
                 game.player.jump()
-                # Limite droite du niveau actuel (ex: 1080 pour le niv 1)
-                current_limit = game.level * 1080
-                if not lose and not timer.paused:
-                    if game.pressed.get(pygame.K_d):#bloquage par niveau
-                        if game.goal > 0:
-                            if game.player.world_x < current_limit - 100:
-                                game.player.move_right()
-                        else:
-                            # niveau suivant
-                            game.player.move_right()
-
-                # Détection du passage de niveau
-                if game.player.world_x >= current_limit:
-                    res = game.next_lvl()
-                    if res == "victory":
-                        lose = True
 
         # -------- Physics (DO NOT CHANGE THE ORDER) --------
         # Reset on_ground at start of frame
@@ -145,10 +125,7 @@ def level1(screen):
 
         # -------- Clamp player to world edges --------
         # Bloque le joueur dans la colonne de son niveau tant que goal n'est pas atteint
-        game.player.world_x = max(
-            level_x_min[game.level] + 75,
-            min(level_x_max[game.level] - 75, game.player.world_x)
-        )
+        game.player.world_x = max(75, min(WORLD_W - 75, game.player.world_x))
         game.player.world_y = max(0, min(WORLD_H - 30, game.player.world_y))
         # -------- Camera deadzone scrolling --------
         game.update_camera(SCREEN_W, SCREEN_H, WORLD_W, WORLD_H)
@@ -158,7 +135,7 @@ def level1(screen):
         game.try_pickup_trash()
         game.damage()
 
-        # #gravity on trash & plat /gravité des déchets sur les plateformes
+        # #gravity on trash & plat /gravité des déchets sur les plateformes(ne marche pas pour l'instant)
         for trash in game.all_trash:
             trash.apply_gravity(game.platforms, WORLD_H)
 
@@ -178,8 +155,10 @@ def level1(screen):
                     if result == 'victory':
                         lose = True
                         transitioning = False
-                    else:
-                        game.player.world_x = level_spawn_x[game.level]
+                    else:#respawn au debut
+                        game.player.world_x = 200
+                        game.player.world_y = 2125
+
             elif fading_out:
                 fade = max(0, fade - 8)
                 if fade <= 0:

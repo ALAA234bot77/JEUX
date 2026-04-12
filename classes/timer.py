@@ -178,7 +178,7 @@ class Timer:
         # Surface transparente de la même taille que l'écran
         # transparent surface same dilesion of the screen
         overlay = pygame.Surface((w, h), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 140))  # noir à 55% d'opacité
+        overlay.fill((0, 0, 0, 200))  # noir à 55% d'opacité
         screen.blit(overlay, (0, 0))
 
         # texte "PAUSE" centré
