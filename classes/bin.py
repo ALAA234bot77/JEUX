@@ -16,13 +16,13 @@ class Bin(pygame.sprite.Sprite):
         elif bin_type == "compost":
             original_image = pygame.image.load('asset/bin/bin_3.png')
             #self.color = (0, 200, 0)      # 🟢 vert
-        elif bin_type == "papier":
+        elif bin_type == "paper":
             original_image = pygame.image.load('asset/bin/bin_4.png')
             #self.color = (255, 255, 0)    # 🟡 jaune
-        elif bin_type == "verre":
+        elif bin_type == "glass":
             original_image = pygame.image.load('asset/bin/bin_2.png')
             #self.color = (0, 200, 200)    # 🫙 cyan
-        elif bin_type == "vetement":
+        elif bin_type == "clothing":
             original_image = pygame.image.load('asset/bin/bin_6.png')
             #self.color = (150, 0, 200)    # 👕 violet"""
 

@@ -353,14 +353,15 @@ class Game:
     # generate all the trash for a lvl, add some trash to the list if you want more trash
     def create_trash(self):
         if self.level == 1:
-            self.goal = 4 # nb de déchet a récupérer pour le lvl
+            self.goal = 2 # nb de déchet a récupérer pour le lvl
             return [
+
+                #Trash(400, 2100, "recyclable"),
+                #Trash(1250, 1585, "menager"),
+                #Trash(2000, 1975, "menager"),
+                #Trash(2680, 1585, "recyclable"),"""
                 Trash(400, 2100, "recyclable"),
-                Trash(1250, 1585, "menager"),
-                Trash(2000, 1975, "menager"),
-                Trash(2680, 1585, "recyclable"),
-                #(2550, 1600),
-                #(1250, 1600),
+                Trash(500, 2100, "menager")
             ]
         elif self.level == 2:
             self.goal = 4
@@ -384,8 +385,10 @@ class Game:
     def create_bins(self):
         if self.level == 1:
             return [
-                Bin(150, 2100,"recyclable"),
-                Bin(3100, 2100,"menager"),
+                #Bin(150, 2100,"recyclable"),
+                #Bin(3100, 2100,"menager"),"""
+                Bin(150, 2100, "recyclable"),
+                Bin(250, 2100, "menager"),
             ]
         elif self.level == 2:
             return [
@@ -464,9 +467,12 @@ class Game:
     def next_lvl(self):
         if self.goal == 0:
             self.level += 1
+            self.platforms.empty()
+            self.platform_spawn()
             self.all_trash = self.create_trash()
             self.all_bins = self.create_bins()
             self.all_spike = self.create_spike()
+
             self.player.health = 3
             self.player.update_health_bar()
         if self.level == 4:
@@ -480,30 +486,25 @@ class Game:
 
     # If you want to add a STATIC platform, simply put his coordinates in a tuple right here. You don't have to modify anything else.
     # If you want to add a MOVING platform, put in a dictionary from which coordinated to which you want it to move
-    PLATFORMS_BY_LEVEL = {
-        1: [
-            (900, 2000),
-            (1300, 1970),
-            (1800, 2010),
+    def create_plateform(self) :
 
-            (2200,1600),
-            (2550,1580),
+        if self.level == 1:
+            return [
+                (900, 2000),
+                (1300, 1970),
+                (1800, 2010),
+                (2200, 1600),
+                (2550, 1580),
+                (1250, 1600),
+                {"x": 1750, "y": 1660, "target_x": 2000, "target_y": 1660, "speed": 1},
+                {"x": 1500, "y": 1940, "target_x": 1500, "target_y": 1650, "speed": 2},
+                {"x": 2000, "y": 1960, "target_x": 2650, "target_y": 1960, "speed": 1.5},
+                (2800, 2000),
+            ]
 
-            (1250,1600),
-            {"x": 1750, "y": 1660, "target_x": 2000, "target_y": 1660, "speed": 1},
-            {"x": 1500, "y": 1940, "target_x": 1500, "target_y": 1650, "speed": 2},
+        elif self.level == 2:
+            return[
 
-            # ── Col 1 ──
-
-            {"x": 2000, "y": 1960, "target_x": 2650, "target_y": 1960, "speed": 1.5},
-            (2800, 2000)
-
-           # (2870, 2010),
-
-
-    ],
-        2: [
-            # ── Col 0 ──
             (850, 2010),
             (1200, 1970),  # trash here
             (1550, 2010),
@@ -529,9 +530,9 @@ class Game:
             (2800, 2000),
             (3100, 1980),  # bin here
             {"x": 2700, "y": 2070, "target_x": 3100, "target_y": 2070, "speed": 2},
-
-        ],
-        3: [
+        ]
+        elif self.level == 3 :
+            return[
             # ── Col 0 ──
             (800, 2020),
             (1150, 1990),
@@ -576,14 +577,13 @@ class Game:
             {"x": 2600, "y": 2070, "target_x": 2950, "target_y": 2070, "speed": 2},
             {"x": 2950, "y": 1800, "target_x": 3150, "target_y": 1800, "speed": 3},
             {"x": 3050, "y": 1660, "target_x": 3050, "target_y": 1520, "speed": 2},
-
         ]
-    }
+
 
     def platform_spawn(self):
 
         # Look up the platform positions for the current level (liste vide si niveau inconnu)
-        positions = self.PLATFORMS_BY_LEVEL.get(self.level, [])
+        positions = self.create_plateform()
 
         for entry in positions:
             if isinstance(entry, tuple):
