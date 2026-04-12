@@ -45,8 +45,7 @@ def main_menu():
                     return
                 if credits_button.checkForInput(menu_mouse_pos):
                     running = False
-                    #credits
-                    pygame.quit()
+                    credits()
                     return
                 if quit_button.checkForInput(menu_mouse_pos):
                     running = False
@@ -56,3 +55,28 @@ def main_menu():
 
         pygame.display.update()
 
+def credits():
+    SCREEN = pygame.display.set_mode((1080, 720))  # ← outside the loop
+    while True:
+        CREDITS_MOUSE_POS = pygame.mouse.get_pos()
+
+        SCREEN.fill("white")
+
+        CREDITS_TEXT = get_font(20).render("TO DO", True, "Black")
+        CREDITS_RECT = CREDITS_TEXT.get_rect(center=(280, 100))
+        SCREEN.blit(CREDITS_TEXT, CREDITS_RECT)
+
+        CREDITS_BACK = Button(image=None, pos=(640, 460), text_input="BACK", font=get_font(75), base_color="Black", hovering_color="Green")
+
+        CREDITS_BACK.changeColor(CREDITS_MOUSE_POS)
+        CREDITS_BACK.update(SCREEN)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if CREDITS_BACK.checkForInput(CREDITS_MOUSE_POS):
+                    main_menu()
+
+        pygame.display.update()

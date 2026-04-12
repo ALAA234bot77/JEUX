@@ -366,8 +366,8 @@ class Game:
         elif self.level == 2:
             self.goal = 4
             return [
-                Trash(300, 1825, "recyclable"),
-                Trash(1200, 1945, "menager"),
+                Trash(1300, 2100, "recyclable"),
+                Trash(3050, 1955, "menager"),
                 Trash(1950, 1825, "compost"),
                 Trash(2300, 1845, "paper"),
             ]
@@ -658,6 +658,9 @@ class Game:
 
                 spike(1350, 2125),
                 spike(1400, 2125),
+
+                spike(1150, 1400),
+                spike(1655, 1840),
 
                 spike(1700, 2125),
                 spike(1800, 2125),
