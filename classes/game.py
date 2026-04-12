@@ -359,25 +359,23 @@ class Game:
     # generate all the trash for a lvl, add some trash to the list if you want more trash
     def create_trash(self):
         if self.level == 1:
-            self.goal = 2 # nb de déchet a récupérer pour le lvl
+            self.goal = 4 # nb de déchet a récupérer pour le lvl
             return [
 
-                #Trash(400, 2100, "recyclable"),
-                #Trash(1250, 1585, "menager"),
-                #Trash(2000, 1975, "menager"),
-                #Trash(2680, 1585, "recyclable"),"""
                 Trash(400, 2100, "recyclable"),
-                Trash(500, 2100, "menager")
+                Trash(1250, 1585, "menager"),
+                Trash(2000, 1975, "menager"),
+                Trash(2680, 1585, "recyclable"),
+
             ]
         elif self.level == 2:
-            self.goal = 2
+            self.goal = 4
             return [
-                Trash(400, 2100, "recyclable"),
-                Trash(500, 2100, "menager")
-                #Trash(1400, 1800, "recyclable"),
-                #Trash(1250, 1400, "menager"),
-                #Trash(1670,1700, "compost"),
-                #Trash(2400, 1800, "paper"),"""
+
+                Trash(1400, 1800, "recyclable"),
+                Trash(1250, 1400, "menager"),
+                Trash(1670,1700, "compost"),
+                Trash(2400, 1800, "paper"),
             ]
         elif self.level == 3:
             self.goal = 6
@@ -393,19 +391,16 @@ class Game:
     def create_bins(self):
         if self.level == 1:
             return [
-                #Bin(150, 2100,"recyclable"),
-                #Bin(3100, 2100,"menager"),"""
-                Bin(150, 2100, "recyclable"),
-                Bin(250, 2100, "menager"),
+                Bin(150, 2100,"recyclable"),
+                Bin(3100, 2100,"menager"),
             ]
         elif self.level == 2:
             return [
+
                 Bin(150, 2100, "recyclable"),
-                Bin(250, 2100, "menager"),
-                #Bin(150, 2100, "recyclable"),
-                #Bin(200, 1845, "menager"),
-                #Bin(2050,1400, "compost"),
-                #Bin(1650,1300, "paper")"""
+                Bin(200, 1845, "menager"),
+                Bin(2050,1400, "compost"),
+                Bin(1650,1300, "paper")
             ]
         elif self.level == 3:
             return [
