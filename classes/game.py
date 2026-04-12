@@ -557,34 +557,23 @@ class Game:
             self.platforms.add(platform)
 
     def check_platform_collision(self):
-        # Check if the player is actually on a platform or something
-
-        # Build a rect representing the player's position in WORLD coordinates
-        player_rect = self.player.rect.copy()
-        player_rect.centerx = int(self.player.world_x)     # World X center of the player
-        player_rect.bottom = int(self.player.world_y)      # World Y feet of the player
+        # on crée un rectangle imaginaire sous les pieds du joueur pour la détection
+        player_feet_y = int(self.player.world_y)
+        player_x = int(self.player.world_x)
 
         for platform in self.platforms:
-            # Check if the player's feet are within the vertical landing zone of the platform
-            if (player_rect.bottom >= platform.rect.top - 5 and
-                    player_rect.bottom <= platform.rect.top + 15 and
-                    player_rect.right > platform.rect.left + 5 and
-                    player_rect.left < platform.rect.right - 5):
+            # Si le joueur tombe et que ses pieds sont au niveau du haut de la plateforme
+            if (self.player.jump_velocity >= 0 and
+                platform.rect.top <= player_feet_y <= platform.rect.top + 15 and
+                platform.rect.left < player_x < platform.rect.right):
+                self.player.world_y = platform.rect.top
+                self.player.jump_velocity = 0
+                self.player.on_ground = True
 
-                # Only snap if the player is falling (jump_velocity > 0)
-                if self.player.jump_velocity > 0:
-                    self.player.world_y = platform.rect.top
-                    self.player.jump_velocity = 0
-                    self.player.on_ground = True
-
-                    if isinstance(platform, MovingPlatform):
-                        self.player.world_x += platform.delta_x  # Slide player horizontally with platform
-                        self.player.world_y += platform.delta_y
-
-                    return True
-
-                return False
-
+                if isinstance(platform, MovingPlatform):
+                    self.player.world_x += platform.delta_x
+                    self.player.world_y += platform.delta_y
+                return True
         return False
 
 

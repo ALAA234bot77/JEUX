@@ -30,11 +30,9 @@ class Trash(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.bottom = y
 
-        # Position monde (float) pour la physique
+        # Position monde pour
         self.world_x = float(self.rect.centerx)
         self.world_y = float(y)
-
-        # Physique
         self.fall_velocity = 0
         self.gravity = 0.6
         self.on_ground = False
@@ -45,26 +43,9 @@ class Trash(pygame.sprite.Sprite):
 
         self.fall_velocity += self.gravity
         self.world_y += self.fall_velocity
-
-        # Sol absolu
+        # Sol
         if self.world_y >= world_h - 30:
             self.world_y = world_h - 30
             self.fall_velocity = 0
             self.on_ground = True
-
-        # Collision avec une plateforme
-        for platform in platforms:
-            if (self.fall_velocity > 0
-                    and self.world_y >= platform.rect.top
-                    and self.world_y <= platform.rect.top + self.fall_velocity + 5
-                    and self.world_x + 15 > platform.rect.left
-                    and self.world_x - 15 < platform.rect.right):
-                self.world_y = platform.rect.top
-                self.fall_velocity = 0
-                self.on_ground = True
-                break
-
-                # Sync rect
-        self.rect.centerx = int(self.world_x)
-        self.rect.bottom = int(self.world_y)
 
