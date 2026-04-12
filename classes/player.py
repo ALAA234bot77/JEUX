@@ -38,6 +38,10 @@ class Player(pygame.sprite.Sprite):
         # track the cat facing left or right
         self.facing = "left"
 
+        #for the sound sfx
+        self.jump_sound = pygame.mixer.Sound("asset/sound/jump_sfx.mp3")
+        self.jump_sound.set_volume(0.4)
+
     def set_facing(self, direction):
         # It is more ecological to do this than make a new png in the asset file
         # Only update if the direction actually changed (avoids flipping every frame)
@@ -87,6 +91,7 @@ class Player(pygame.sprite.Sprite):
         if self.on_ground:
             self.jump_velocity = self.jump_height
             self.on_ground = False
+            self.jump_sound.play()
 
     def apply_gravity(self, world_h):
         self.jump_velocity += self.gravity
@@ -97,4 +102,3 @@ class Player(pygame.sprite.Sprite):
             self.world_y = world_h - 30
             self.jump_velocity = 0
             self.on_ground = True
-

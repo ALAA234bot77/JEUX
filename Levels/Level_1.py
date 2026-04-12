@@ -3,41 +3,6 @@ from classes.game import Game
 from classes.timer import Timer
 from classes.platform import Platform, MovingPlatform
 
-"""
-# ── Draw  for arc throw
-def draw_arc_preview(screen, game, mouse_pos):  # ← NEW
-
-    points = game.get_trajectory_points(mouse_pos)
-    for i, pt in enumerate(points):
-        if i % 3 == 0:
-            pygame.draw.circle(screen, (255, 255, 255), pt, 3)
-    hx, hy = game._hold_pos()
-    hold_sx = int(hx - game.camera_x)
-    hold_sy = int(hy - game.camera_y)
-    pygame.draw.line(screen, (200, 100, 100), (hold_sx, hold_sy), mouse_pos, 2)
-
-
-def draw_bin_highlight(screen, game, mouse_pos):  # ← NEW
-    
-    aimed = game.get_aimed_bin(mouse_pos)
-    if aimed is None:
-        return
-    correct = (aimed.bin_type == game.carried_trash_type)
-    colour = (80, 255, 80) if correct else (255, 80, 80)
-    sx = int(aimed.rect.x - game.camera_x) - 5
-    sy = int(aimed.rect.y - game.camera_y) - 5
-    w = aimed.rect.width + 10
-    h = aimed.rect.height + 10
-    pygame.draw.rect(screen, colour, (sx, sy, w, h), 4, border_radius=6)
-    font_s = pygame.font.SysFont(None, 28)
-    label = font_s.render(aimed.bin_type, True, colour)
-    screen.blit(label, (sx + w // 2 - label.get_width() // 2, sy - 22))
-"""
-
-
-
-
-
 def level1(screen):
     clock = pygame.time.Clock()
     timer = Timer(300)
@@ -67,6 +32,12 @@ def level1(screen):
     fade = 0
     fade_surface = pygame.Surface((SCREEN_W, SCREEN_H))
     fade_surface.fill((0, 0, 0))
+
+    #song
+    pygame.mixer.init()
+    pygame.mixer.music.load("asset/sound/level_1_song.mp3")
+    pygame.mixer.music.set_volume(0.5)
+    pygame.mixer.music.play(-1)
 
     while True:
         # -------- Events --------
