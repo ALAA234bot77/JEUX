@@ -2,13 +2,11 @@ import pygame
 from classes.game import Game
 
 
-def level1(screen):
-
+def level2(screen):
     clock = pygame.time.Clock()
 
     SCREEN_W, SCREEN_H = 1080, 720
     pygame.display.set_caption("Trash Cat 67")
-
 
     game = Game()
 
@@ -23,8 +21,8 @@ def level1(screen):
     game.load_background(bg, COLS, ROWS, CELL_W, CELL_H)
 
     running = True
-    #camera_x = 0
-    #camera_y = 0
+    # camera_x = 0
+    # camera_y = 0
     lose = False
 
     while True:
@@ -50,7 +48,6 @@ def level1(screen):
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 game.release_drag(event.pos)
 
-
         # -------- Player movement in world coordinates --------
         if not lose:  # when game over you can move but the game don't close instantly
             if game.pressed.get(pygame.K_d):
@@ -59,7 +56,6 @@ def level1(screen):
                 game.player.move_left()
             if game.pressed.get(pygame.K_SPACE):
                 game.player.jump()
-
 
         # -------- Physics (DO NOT CHANGE THE ORDER) --------
         # Reset on_ground at start of frame

@@ -243,12 +243,12 @@ class Game:
                 if self.carried_trash_type == bin_obj.bin_type:
                     self.score += 1
                     self.goal -= 1
-                    print(f"✅ Bravo ! Score : {self.score}")
+                    print(f"✅ congrats ! Score : {self.score}")
                 else:
                     self.goal -= 1
                     self.player.health -= 1
                     self.player.update_health_bar()
-                    print(f"❌ Mauvaise poubelle !")
+                    print(f"❌ Wrong bin !")
                 self.carrying = False
                 self.carried_trash_type = None
                 self.carried_trash_image = None
@@ -260,7 +260,7 @@ class Game:
         if (self.proj_world_y > floor_y or
                 self.proj_world_x < 0 or
                 self.proj_world_x > 3 * 1080):
-            print("💨 Raté — retour en main")
+            print("💨 missed !")
             self.throw_state = "idle"  # trash stays in hand, player can aim again
 
     def get_trajectory_points(self, mouse_pos, steps=55):  # ← NEW
@@ -346,7 +346,7 @@ class Game:
                 Trash(800, 2125,"recyclable"),
                 Trash(1200, 2125,"menager"),
                 Trash(1600, 2125,"compost"),
-                Trash(2000, 2125,"papier"),
+                Trash(2000, 2125,"paper"),
             ]
         elif self.level == 3:
             self.goal = 6
@@ -354,9 +354,9 @@ class Game:
                 Trash(800, 2125,"recyclable"),
                 Trash(1200, 2125,"menager"),
                 Trash(1600, 2125,"compost"),
-                Trash(2000, 2125,"papier"),
-                Trash(2400, 2125,"verre"),
-                Trash(2800, 2125,"vetement"),
+                Trash(2000, 2125,"paper"),
+                Trash(2400, 2125,"glass"),
+                Trash(2800, 2125,"clothing"),
             ]
 
     def create_bins(self):
@@ -377,9 +377,9 @@ class Game:
                 Bin(300, 2125,"recyclable"),
                 Bin(500, 2125,"menager"),
                 Bin(700, 2125,"compost"),
-                Bin(900, 2125,"papier"),
-                Bin(1100, 2125,"verre"),
-                Bin(1300, 2125,"vetement"),
+                Bin(900, 2125,"paper"),
+                Bin(1100, 2125,"glass"),
+                Bin(1300, 2125,"clothing"),
             ]
 
     # ========== NEW VERSION (currently used) ==========
