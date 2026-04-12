@@ -11,7 +11,6 @@ def get_font(size):
 
 def main_menu():
     pygame.init()
-    pygame.mixer.init()
     pygame.mixer.music.load("asset/sound/main_menu_song.mp3")
     pygame.mixer.music.set_volume(0.3)
     pygame.mixer.music.play(-1)

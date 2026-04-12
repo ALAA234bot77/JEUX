@@ -34,10 +34,11 @@ def level1(screen):
     fade_surface.fill((0, 0, 0))
 
     #song
-    pygame.mixer.init()
     pygame.mixer.music.load("asset/sound/level_1_song.mp3")
     pygame.mixer.music.set_volume(0.5)
     pygame.mixer.music.play(-1)
+
+    game_over_music_playing = False
 
     while True:
         # -------- Events --------
@@ -63,6 +64,10 @@ def level1(screen):
                     fading_in = False
                     fading_out = False
                     fade = 0
+                    game_over_music_playing = False
+                    pygame.mixer.music.load("asset/sound/level_1_song.mp3")
+                    pygame.mixer.music.set_volume(0.3)
+                    pygame.mixer.music.play(-1)
 
             elif event.type == pygame.KEYUP:
                 game.pressed[event.key] = False
@@ -140,6 +145,13 @@ def level1(screen):
             lose = True
             game.pressed = {}
             timer.finished = True  #game over
+
+        if lose and not game_over_music_playing and not (game.level >= 3 and game.goal == 0):
+            pygame.mixer.music.stop()
+            pygame.mixer.music.load("asset/sound/game_over_sfx.mp3")
+            pygame.mixer.music.set_volume(0.6)
+            pygame.mixer.music.play()  # pas de -1 : joue une seule fois
+            game_over_music_playing = True
 
         # -------- Draw --------
         game.draw_background(screen, bg, COLS, ROWS, CELL_W, CELL_H, SCREEN_W, SCREEN_H)

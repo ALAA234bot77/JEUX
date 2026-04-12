@@ -57,6 +57,11 @@ class Game:
 
         self.FLOAT_OFFSET_Y = -90  # px above player.world_y where trash floats
 
+        if not pygame.mixer.get_init():
+            pygame.mixer.init()
+        self.correct_bin_sound = pygame.mixer.Sound("asset/sound/67_sfx.mp3")
+        self.correct_bin_sound.set_volume(0.6)
+
     def check_collisions(self, sprite, group):
         return pygame.sprite.spritecollide(sprite, group, False, pygame.sprite.collide_mask)
 
@@ -263,6 +268,7 @@ class Game:
                 if self.carried_trash_type == bin_obj.bin_type:
                     self.score += 1
                     self.goal -= 1
+                    self.correct_bin_sound.play()
                     print(f"✅ congrats ! Score : {self.score}")
                 else:
                     self.goal -= 1
@@ -275,7 +281,7 @@ class Game:
                 self.throw_state = "idle"
                 return
 
-        # ← NEW: missed → return to hand instead of disappearing
+
         floor_y = 3 * 720 - 30
         if (self.proj_world_y > floor_y or
                 self.proj_world_x < 0 or
@@ -455,6 +461,7 @@ class Game:
                 if self.carried_trash_type == bin_obj.bin_type:
                     self.score += 1
                     self.goal -= 1
+                    self.correct_bin_sound.play()
                     print(self.goal)
                     print(f"✅ Congrats ! Score : {self.score}")
                 else:
