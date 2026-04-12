@@ -23,6 +23,14 @@ class Player(pygame.sprite.Sprite):
         self.jump_velocity = 0
         self.on_ground = True
 
+        #smooth movements
+        self.current_velocity_x = 0.0
+        self.acceleration = 0.18
+
+        # Position in the full world (not screen)
+        self.world_x = 515
+        self.world_y = 2 * 720 + 540
+
         # Position in the full world (not screen)
         self.world_x = 515
         self.world_y = 2 * 720 + 540  # near bottom of bottom row
@@ -56,13 +64,24 @@ class Player(pygame.sprite.Sprite):
             self.health_image = pygame.image.load('asset/no_hearts.png')
 
 
+    def lerp(self, a, b, t):
+        return a + (b - a) * t
+
     def move_right(self):
-        self.world_x += self.velocity
-        self.set_facing("right")
+        self.current_velocity_x = self.lerp(self.current_velocity_x, self.velocity, self.acceleration)
+        self.world_x += self.current_velocity_x
+        if self.current_velocity_x > 0.1:
+            self.set_facing("right")
 
     def move_left(self):
-        self.world_x -= self.velocity
-        self.set_facing("left")
+        self.current_velocity_x = self.lerp(self.current_velocity_x, -self.velocity, self.acceleration)
+        self.world_x += self.current_velocity_x
+        if self.current_velocity_x < -0.1:
+            self.set_facing("left")
+
+    def apply_friction(self):
+        self.current_velocity_x = self.lerp(self.current_velocity_x, 0, self.acceleration)
+        self.world_x += self.current_velocity_x
 
     def jump(self):
         if self.on_ground:
