@@ -393,7 +393,7 @@ class Game:
         elif self.level == 2:
             return [
                 Bin(150, 2100, "recyclable"),
-                Bin(1300, 1845, "menager"),
+                Bin(200, 1845, "menager"),
                 Bin(2200, 1945, "compost"),
                 Bin(3100, 1955, "paper"),
             ]
@@ -514,13 +514,17 @@ class Game:
                 {"x": 1300, "y": 1740, "target_x": 700, "target_y": 1740, "speed": 2},
 
                 (500,1700),
-
+                (200,1850),
 
                 (1650,1300),
                 (1900,1400),
 
                 (1150,1400),
 
+                (2100,1700),
+                (2400,1800),
+
+                {"x": 1700, "y": 1990, "target_x":2600, "target_y": 1990, "speed": 2}
 
 
 
@@ -650,11 +654,21 @@ class Game:
             ]
         elif self.level == 2:
             return [
-                spike(1050, 2125),
-                spike(1080, 2125),
-                spike(1650, 2125),
-                spike(1680, 2125),
-                spike(2550, 2125),
+                spike(860, 2125),
+
+                spike(1350, 2125),
+                spike(1400, 2125),
+
+                spike(1700, 2125),
+                spike(1800, 2125),
+                spike(1900, 2125),
+                spike(2000, 2125),
+                spike(2100, 2125),
+                spike(2200, 2125),
+                spike(2300, 2125),
+                spike(2400, 2125),
+                spike(2500, 2125),
+                spike(2600, 2125),
 
             ]
         elif self.level == 3:
