@@ -485,31 +485,14 @@ class Game:
         elif self.level == 2:
             return[
 
-            (850, 2010),
-            (1200, 1970),  # trash here
-            (1550, 2010),
-            # upper layer
-            (950, 1850),  # trash here
-            (1300, 1870),  # bin here
-            # moving
-            {"x": 600, "y": 2070, "target_x": 1000, "target_y": 2070, "speed": 2},
-            {"x": 1150, "y": 1800, "target_x": 1150, "target_y": 1650, "speed": 2},
+            (900, 2000),
+            (1170, 1900),
+            (1500, 1840),
+            (1670,1700),
+            (1750,1650),
+            (1800,1650)
 
-            # ── Col 1 ──
-            (1850, 2000),
-            (2200, 1970),  # bin here
-            (2500, 2010),
-            # upper layer col 1
-            (1950, 1850),  # trash here
-            (2300, 1870),
-            # moving col 1
-            {"x": 1700, "y": 2070, "target_x": 2100, "target_y": 2070, "speed": 2},
-            {"x": 2100, "y": 1800, "target_x": 2450, "target_y": 1800, "speed": 3},
 
-            # ── Col 2 — sparse ──
-            (2800, 2000),
-            (3100, 1980),  # bin here
-            {"x": 2700, "y": 2070, "target_x": 3100, "target_y": 2070, "speed": 2},
         ]
         elif self.level == 3 :
             return[
