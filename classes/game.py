@@ -366,10 +366,10 @@ class Game:
         elif self.level == 2:
             self.goal = 4
             return [
-                Trash(1300, 2100, "recyclable"),
-                Trash(3050, 1955, "menager"),
-                Trash(1950, 1825, "compost"),
-                Trash(2300, 1845, "paper"),
+                Trash(1400, 1800, "recyclable"),
+                Trash(1250, 1400, "menager"),
+                Trash(1670,1700, "compost"),
+                Trash(2400, 1800, "paper"),
             ]
         elif self.level == 3:
             self.goal = 6
@@ -394,8 +394,8 @@ class Game:
             return [
                 Bin(150, 2100, "recyclable"),
                 Bin(200, 1845, "menager"),
-                Bin(2200, 1945, "compost"),
-                Bin(3100, 1955, "paper"),
+                Bin(2050,1400, "compost"),
+                Bin(1650,1300, "paper")
             ]
         elif self.level == 3:
             return [
@@ -520,7 +520,7 @@ class Game:
                 (1900,1400),
 
                 (1150,1400),
-
+                (3100, 1980),
                 (2100,1700),
                 (2400,1800),
 
@@ -532,50 +532,8 @@ class Game:
         ]
         elif self.level == 3 :
             return[
-            # ── Col 0 ──
-            (800, 2020),
-            (1150, 1990),
-            (1500, 2020),
-            # upper layer
-            (900, 1870),  # trash here
-            (1250, 1850),  # bin here
-            (1450, 1870),
-            # top layer
-            (1050, 1730),  # trash here
-            # moving col 0
-            {"x": 600, "y": 2070, "target_x": 950, "target_y": 2070, "speed": 2},
-            {"x": 1100, "y": 1810, "target_x": 1100, "target_y": 1660, "speed": 2},
-            {"x": 1350, "y": 1720, "target_x": 1600, "target_y": 1720, "speed": 3},
+                {"x": 500, "y": 1990, "target_x": 2600, "target_y": 1990, "speed": 2}
 
-            # ── Col 1 ──
-            (1800, 2020),
-            (2150, 1990),
-            (2500, 2020),
-            # upper layer
-            (1900, 1870),  # bin here
-            (2250, 1850),  # trash here
-            (2450, 1870),
-            # top layer
-            (2050, 1730),  # trash here
-            # moving col 1
-            {"x": 1650, "y": 2070, "target_x": 2000, "target_y": 2070, "speed": 2},
-            {"x": 2100, "y": 1800, "target_x": 2450, "target_y": 1800, "speed": 3},
-            {"x": 2200, "y": 1660, "target_x": 2200, "target_y": 1520, "speed": 2},
-
-            # ── Col 2 ──
-            (2750, 2020),
-            (3050, 1990),
-            (3150, 2020),
-            # upper layer
-            (2850, 1870),  # trash here
-            (3050, 1850),  # bin here
-            (3150, 1870),
-            # top layer
-            (2950, 1730),  # trash here
-            # moving col 2
-            {"x": 2600, "y": 2070, "target_x": 2950, "target_y": 2070, "speed": 2},
-            {"x": 2950, "y": 1800, "target_x": 3150, "target_y": 1800, "speed": 3},
-            {"x": 3050, "y": 1660, "target_x": 3050, "target_y": 1520, "speed": 2},
         ]
 
 
