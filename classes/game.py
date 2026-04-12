@@ -138,30 +138,50 @@ class Game:
             self._draw_arc_preview(screen, mouse_pos)
             self._draw_bin_highlight(screen, mouse_pos)
 
+    def draw_ui(self, screen, lose=False):
+        blue = (55, 113, 184)  # bleu principal
+        white = (224, 232, 240)  # texte clair
 
-    def draw_ui(self,screen,lose=False):
-        font = pygame.font.SysFont("Arial", 20)
+        # coeurs / hearth
+        heart_img = pygame.transform.scale(self.player.health_image, (110, 44))
+        screen.blit(heart_img, (12, 12))
+        # score(under the heearth)
+        font_score = pygame.font.SysFont("consolas", 20, True)
+        # Fond du score
+        score_txt = f"Score : {self.score}"
+        score_surf = font_score.render(score_txt, True, white)
+        score_w = score_surf.get_width() + 16
+        score_bg = pygame.Surface((score_w, 26), pygame.SRCALPHA)
+        score_bg.fill((0, 0, 0, 110))
+        screen.blit(score_bg, (12, 60))
 
-        self.player.update_health_bar()
-        screen.blit(pygame.transform.scale(self.player.health_image, (120, 50)), (10, 50))
-
-        score_text = font.render(f"Score: {self.score}", True, (255, 255, 255))
-        screen.blit(score_text, (10, 10))
+        # Barre bleue gauche
+        pygame.draw.rect(screen, blue, (12, 60, 3, 26))
+        screen.blit(score_surf, (20, 63))  # Texte score
 
         if self.carrying:
-            carry_text = font.render(f"Carrying : {self.carried_trash_type}", True, (255, 255, 0))
-            screen.blit(carry_text, (10, 90))
+            font_carry = pygame.font.SysFont("consolas", 18, True)
 
-        if self.player.health == 0:
-            end_font = pygame.font.SysFont(None, 80)
-            end_text = end_font.render("Game Over", True, (255, 0, 0))
-            screen.blit(end_text, (450, 350))
+            txt_surf = font_carry.render("You are carrying : ", True, (133, 183, 235))
+            type_surf = font_carry.render(self.carried_trash_type, True, white)
 
-        if lose and self.next_lvl() == "victory":
-            win_font = pygame.font.SysFont(None, 80)
-            win_text = win_font.render("Victory!", True, (0, 0, 255))
-            screen.blit(win_text, (450, 350))
+            total_w = 14 + txt_surf.get_width() + type_surf.get_width() + 14
+            bg_carry_h = 32
+            bg_carry_x = (screen.get_width() - total_w) // 2
+            bg_carry_y = 20
 
+            # Fond / bg carry
+            badge_bg = pygame.Surface((total_w, bg_carry_h), pygame.SRCALPHA)
+            badge_bg.fill((10, 20, 40, 210))
+            screen.blit(badge_bg, (bg_carry_x, bg_carry_y))
+            # Bordure bleue
+            pygame.draw.rect(screen, blue, (bg_carry_x, bg_carry_y, total_w, bg_carry_h), 1, border_radius=0)
+            # Point bleu/blue point
+            pygame.draw.circle(screen, blue, (bg_carry_x + 10, bg_carry_y + bg_carry_h // 2), 5)
+            # text carry
+            text_y = bg_carry_y + (bg_carry_h - txt_surf.get_height()) // 2
+            screen.blit(txt_surf, (bg_carry_x + 20, text_y))
+            screen.blit(type_surf, (bg_carry_x + 20 + txt_surf.get_width(), text_y))
 
         #arc throw moved from main
     def _draw_arc_preview(self, screen, mouse_pos):
@@ -568,36 +588,17 @@ class Game:
             self.platforms.add(platform)
 
     def check_platform_collision(self):
-        # Check if the player is actually on a platform or something
-
-        # Build a rect representing the player's position in WORLD coordinates
         player_rect = self.player.rect.copy()
-        player_rect.centerx = int(self.player.world_x)     # World X center of the player
-        player_rect.bottom = int(self.player.world_y)      # World Y feet of the player
+        player_rect.centerx = int(self.player.world_x)
+        player_rect.bottom = int(self.player.world_y)
 
         for platform in self.platforms:
-            # Check if the player's feet are within the vertical landing zone of the platform
-            if (player_rect.bottom >= platform.rect.top - 5 and
-                    player_rect.bottom <= platform.rect.top + 15 and
-                    player_rect.right > platform.rect.left + 5 and
-                    player_rect.left < platform.rect.right - 5):
-
-                # Only snap if the player is falling (jump_velocity > 0)
-                if self.player.jump_velocity > 0:
+            if platform.rect.colliderect(player_rect):
+                if self.player.jump_velocity > 0 and player_rect.bottom <= platform.rect.top + 15:
                     self.player.world_y = platform.rect.top
                     self.player.jump_velocity = 0
                     self.player.on_ground = True
-
-                    if isinstance(platform, MovingPlatform):
-                        self.player.world_x += platform.delta_x  # Slide player horizontally with platform
-                        self.player.world_y += platform.delta_y
-
-                    return True
-
-                return False
-
-        return False
-
+                    return
 
 
 

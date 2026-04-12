@@ -12,24 +12,24 @@ def get_font(size):
 def main_menu():
     pygame.init()
     screen = pygame.display.set_mode((1080, 720))
-    background = pygame.image.load("asset/bg_2_1.jpg")
+    background_raw = pygame.image.load("asset/bg_2_1.jpg")
+    background = pygame.transform.scale(background_raw, (1080, 720))
     running = True
     while running:
         screen.blit(background, (0, 0))
 
-        MENU_MOUSE_POS = pygame.mouse.get_pos()
+        menu_mouse_pos = pygame.mouse.get_pos()
 
-        MENU_TEXT = get_font(80).render("Trash Cat 67", True, "#11369E")
-        MENU_RECT = MENU_TEXT.get_rect(center=(640, 100))
+        menu_text = get_font(80).render("Trash Cat 67", True, "#11369E")
+        menu_rect = menu_text.get_rect(center=(540, 100))
 
-        PLAY_BUTTON = Button(image=None, pos=(640, 250),text_input="PLAY", font=get_font(75), base_color="#d9fcd4", hovering_color="White")
-        CREDITS_BUTTON = Button(image=None, pos=(640, 400),text_input="CREDITS", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
-        QUIT_BUTTON = Button(image=None, pos=(640, 550),text_input="QUIT", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+        play_button = Button(image=None, pos=(540, 250),text_input="PLAY", font=get_font(75), base_color="#d9fcd4", hovering_color="White")
+        credits_button = Button(image=None, pos=(540, 400),text_input="CREDITS", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+        quit_button = Button(image=None, pos=(540, 550),text_input="QUIT", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+        screen.blit(menu_text, menu_rect)
 
-        screen.blit(MENU_TEXT, MENU_RECT)
-
-        for button in [PLAY_BUTTON, CREDITS_BUTTON, QUIT_BUTTON]:
-            button.changeColor(MENU_MOUSE_POS)
+        for button in [play_button, credits_button, quit_button]:
+            button.changeColor(menu_mouse_pos)
             button.update(screen)
 
         for event in pygame.event.get():
@@ -39,21 +39,20 @@ def main_menu():
                 pygame.quit()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if PLAY_BUTTON.checkForInput(MENU_MOUSE_POS):
+                if play_button.checkForInput(menu_mouse_pos):
                     running = False
                     Level_1.level1(screen)
                     return
-                if CREDITS_BUTTON.checkForInput(MENU_MOUSE_POS):
+                if credits_button.checkForInput(menu_mouse_pos):
                     running = False
-                    #credits()
+                    #credits
                     pygame.quit()
                     return
-                if QUIT_BUTTON.checkForInput(MENU_MOUSE_POS):
+                if quit_button.checkForInput(menu_mouse_pos):
                     running = False
                     pygame.quit()
                     return
 
 
         pygame.display.update()
-
 

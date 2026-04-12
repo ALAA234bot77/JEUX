@@ -33,4 +33,22 @@ class Trash(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.bottom = y
 
+        # Position monde pour
+        self.world_x = float(self.rect.centerx)
+        self.world_y = float(y)
+        self.fall_velocity = 0
+        self.gravity = 0.6
+        self.on_ground = False
+
+    def apply_gravity(self, platforms, world_h):
+        if self.on_ground:
+            return
+
+        self.fall_velocity += self.gravity
+        self.world_y += self.fall_velocity
+        # Sol
+        if self.world_y >= world_h - 30:
+            self.world_y = world_h - 30
+            self.fall_velocity = 0
+            self.on_ground = True
 
