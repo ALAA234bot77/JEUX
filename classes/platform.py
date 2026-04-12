@@ -86,3 +86,4 @@ class MovingPlatform(Platform):
         # This will be used by game.py to carry the player along
         self.delta_x = self.world_x - prev_x
         self.delta_y = self.world_y - prev_y
+

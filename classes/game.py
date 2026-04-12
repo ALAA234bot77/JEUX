@@ -138,23 +138,50 @@ class Game:
             self._draw_arc_preview(screen, mouse_pos)
             self._draw_bin_highlight(screen, mouse_pos)
 
+    def draw_ui(self, screen, lose=False):
+        blue = (55, 113, 184)  # bleu principal
+        white = (224, 232, 240)  # texte clair
 
-    def draw_ui(self,screen,lose=False):
-        font = pygame.font.SysFont("Arial", 20)
+        # coeurs / hearth
+        heart_img = pygame.transform.scale(self.player.health_image, (110, 44))
+        screen.blit(heart_img, (12, 12))
+        #score(under the heearth)
+        font_score = pygame.font.SysFont("consolas", 20, True)
+        # Fond du score
+        score_txt = f"Score : {self.score}"
+        score_surf = font_score.render(score_txt, True, white)
+        score_w = score_surf.get_width() + 16
+        score_bg = pygame.Surface((score_w, 26), pygame.SRCALPHA)
+        score_bg.fill((0, 0, 0, 110))
+        screen.blit(score_bg, (12, 60))
 
-        self.player.update_health_bar()
-        screen.blit(pygame.transform.scale(self.player.health_image, (120, 50)), (10, 50))
-
-        score_text = font.render(f"Score: {self.score}", True, (255, 255, 255))
-        screen.blit(score_text, (10, 10))
+        # Barre bleue gauche
+        pygame.draw.rect(screen, blue, (12, 60, 3, 26))
+        screen.blit(score_surf, (20, 63))# Texte score
 
         if self.carrying:
-            carry_text = font.render(f"Tu portes : {self.carried_trash_type}", True, (255, 255, 0))
-            screen.blit(carry_text, (10, 90))
+            font_carry = pygame.font.SysFont("consolas", 18, True)
 
+            txt_surf = font_carry.render("You are carrying : ", True, (133, 183, 235))
+            type_surf = font_carry.render(self.carried_trash_type, True, white)
 
+            total_w = 14 + txt_surf.get_width() + type_surf.get_width() + 14
+            bg_carry_h = 32
+            bg_carry_x = (screen.get_width() - total_w) // 2
+            bg_carry_y = 20
 
-
+            # Fond / bg carry
+            badge_bg = pygame.Surface((total_w, bg_carry_h), pygame.SRCALPHA)
+            badge_bg.fill((10, 20, 40, 210))
+            screen.blit(badge_bg, (bg_carry_x, bg_carry_y))
+            # Bordure bleue
+            pygame.draw.rect(screen, blue, (bg_carry_x, bg_carry_y, total_w, bg_carry_h), 1, border_radius=0)
+            # Point bleu/blue point
+            pygame.draw.circle(screen, blue, (bg_carry_x + 10, bg_carry_y + bg_carry_h // 2), 5)
+            # text carry
+            text_y = bg_carry_y + (bg_carry_h - txt_surf.get_height()) // 2
+            screen.blit(txt_surf, (bg_carry_x + 20, text_y))
+            screen.blit(type_surf, (bg_carry_x + 20 + txt_surf.get_width(), text_y))
 
 
         #arc throw moved from main
@@ -232,21 +259,20 @@ class Game:
 
         def platform_spawn(self):
             self.platforms.empty()  # On vide pour éviter les doublons
-            o = (self.level - 1) * 1080
+            offset = (self.level - 1) * 1080
             positions = self.PLATFORMS_BY_LEVEL.get(self.level, [])
 
             for entry in positions:
                 if isinstance(entry, tuple):
                     x_relative, y = entry
-                    # On ajoute l'offset 'o' pour placer la plateforme dans le bon niveau
-                    platform = Platform(self, x=o + x_relative, y=y)
+                    platform = Platform(self, x=offset + x_relative, y=y)
                 elif isinstance(entry, dict):
                     platform = MovingPlatform(
                         self,
-                        x=o + entry["x"],
+                        x=offset + entry["x"],
                         y=entry["y"],
-                        target_x=o + entry["target_x"],  # Ajout de o ici aussi !
-                        target_y=entry["target_y"],  # On ne touche pas au Y global
+                        target_x=offset + entry["target_x"],  # plateforme au bon endroit
+                        target_y=entry["target_y"],
                         speed=entry.get("speed", 2)
                     )
                 self.platforms.add(platform)
@@ -344,59 +370,58 @@ class Game:
         screen.blit(img, (sx, sy))
 
 
-# ─────────────────────── TRASH ────────────────────────────────────────────────
     # generate all the trash for a lvl, add some trash to the list if you want more trash
     def create_trash(self):
-        o = (self.level - 1) * 1080  # origin : 0, 1080 ou 2160
+        ofsset = (self.level - 1) * 1080  # origin : 0, 1080 ou 2160
         if self.level == 1:
             self.goal = 4
             return [
-                Trash(o + 300, 2125, "recyclable"),
-                Trash(o + 500, 2125, "menager"),
-                Trash(o + 600, 2125, "recyclable"),
-                Trash(o + 900, 2125, "menager"),
+                Trash(ofsset + 300, 2125, "recyclable"),
+                Trash(ofsset + 500, 2125, "menager"),
+                Trash(ofsset + 600, 2125, "recyclable"),
+                Trash(ofsset + 900, 2125, "menager"),
             ]
         elif self.level == 2:
             self.goal = 4
             return [
-                Trash(o + 300, 2125, "recyclable"),
-                Trash(o + 500, 2125, "menager"),
-                Trash(o + 700, 2125, "compost"),
-                Trash(o + 900, 2125, "papier"),
+                Trash(ofsset + 300, 2125, "recyclable"),
+                Trash(ofsset + 500, 2125, "menager"),
+                Trash(ofsset + 700, 2125, "compost"),
+                Trash(ofsset + 900, 2125, "papier"),
             ]
         elif self.level == 3:
             self.goal = 6
             return [
-                Trash(o + 200, 2125, "recyclable"),
-                Trash(o + 380, 2125, "menager"),
-                Trash(o + 520, 2125, "compost"),
-                Trash(o + 660, 2125, "papier"),
-                Trash(o + 800, 2125, "verre"),
-                Trash(o + 940, 2125, "vetement"),
+                Trash(ofsset + 200, 2125, "recyclable"),
+                Trash(ofsset + 380, 2125, "menager"),
+                Trash(ofsset + 520, 2125, "compost"),
+                Trash(ofsset + 660, 2125, "papier"),
+                Trash(ofsset + 800, 2125, "verre"),
+                Trash(ofsset + 940, 2125, "vetement"),
             ]
 
     def create_bins(self):
-        o = (self.level - 1) * 1080
+        ofsset = (self.level - 1) * 1080 # position adaptated to the level
         if self.level == 1:
             return [
-                Bin(o + 100, 2125, "recyclable"),
-                Bin(o + 180, 2125, "menager"),
+                Bin(ofsset + 100, 2125, "recyclable"),
+                Bin(ofsset + 180, 2125, "menager"),
             ]
         elif self.level == 2:
             return [
-                Bin(o + 80, 2125, "recyclable"),
-                Bin(o + 160, 2125, "menager"),
-                Bin(o + 240, 2125, "compost"),
-                Bin(o + 320, 2125, "papier"),
+                Bin(ofsset + 80, 2125, "recyclable"),
+                Bin(ofsset + 160, 2125, "menager"),
+                Bin(ofsset + 240, 2125, "compost"),
+                Bin(ofsset + 320, 2125, "papier"),
             ]
         elif self.level == 3:
             return [
-                Bin(o + 60, 2125, "recyclable"),
-                Bin(o + 130, 2125, "menager"),
-                Bin(o + 200, 2125, "compost"),
-                Bin(o + 270, 2125, "papier"),
-                Bin(o + 340, 2125, "verre"),
-                Bin(o + 410, 2125, "vetement"),
+                Bin(ofsset + 60, 2125, "recyclable"),
+                Bin(ofsset + 130, 2125, "menager"),
+                Bin(ofsset + 200, 2125, "compost"),
+                Bin(ofsset + 270, 2125, "papier"),
+                Bin(ofsset + 340, 2125, "verre"),
+                Bin(ofsset + 410, 2125, "vetement"),
             ]
 
 
@@ -458,9 +483,11 @@ class Game:
 
     def next_lvl(self):
         self.level += 1
+        # if we finish the last level
         if self.level > 3:
             self.level = 3
             return 'victory'
+        #else we change level
         self.all_trash = self.create_trash()
         self.all_bins = self.create_bins()
         self.all_spike = self.create_spike()
@@ -471,9 +498,12 @@ class Game:
         self.carrying = False
         self.carried_trash_type = None
         self.carried_trash_image = None
-        self.throw_state = "idle"
-        return None
-
+        new_start_x = (self.level - 1) * 1080 + 100 # new start for level +1
+        self.player.world_x = new_start_x
+        self.player.world_y = 2125
+        self.camera_x = (self.level - 1) * 1080
+        print(f"Passage au Niveau {self.level}, Position X: {self.player.world_x}")
+        return "Next"
 
 
 
@@ -506,22 +536,22 @@ class Game:
     }
 
     def platform_spawn(self):
-        self.platforms.empty() # On vide pour éviter les doublons
-        o = (self.level - 1) * 1080
+        self.platforms.empty()
+        offset = (self.level - 1) * 1080 #to keep the pp in the same level(calculate the range where the pp can displace by level)
         positions = self.PLATFORMS_BY_LEVEL.get(self.level, [])
 
         for entry in positions:
             if isinstance(entry, tuple):
-                x_relative, y = entry
+                px, py = entry
                 # On ajoute l'offset 'o' pour placer la plateforme dans le bon niveau
-                platform = Platform(self, x=o + x_relative, y=y)
+                platform = Platform(self, x=offset + px, y=py )
             elif isinstance(entry, dict):
                 platform = MovingPlatform(
                     self,
-                    x= o + entry["x"],
+                    x= offset + entry["x"],
                     y=entry["y"],
-                    target_x= o + entry["target_x"], # Ajout de o ici aussi !
-                    target_y=entry["target_y"],      # On ne touche pas au Y global
+                    target_x= offset + entry["target_x"],
+                    target_y=entry["target_y"],
                     speed=entry.get("speed", 2)
                 )
             self.platforms.add(platform)
@@ -577,14 +607,14 @@ class Game:
                 spike.immunity = False
 
     def create_spike(self):
-        o = (self.level - 1) * 1080
+        ofsset = (self.level - 1) * 1080
         if self.level == 1:
-            return [spike(o + 400, 2125), spike(o + 700, 2125)]
+            return [spike(ofsset + 400, 2125), spike(ofsset + 700, 2125)]
         elif self.level == 2:
-            return [spike(o + 300, 2125), spike(o + 450, 2125),
-                    spike(o + 600, 2125), spike(o + 750, 2125)]
+            return [spike(ofsset + 300, 2125), spike(ofsset + 450, 2125),
+                    spike(ofsset + 600, 2125), spike(ofsset + 750, 2125)]
         elif self.level == 3:
-            return [spike(o + 250, 2125), spike(o + 380, 2125),
-                    spike(o + 510, 2125), spike(o + 640, 2125),
-                    spike(o + 770, 2125), spike(o + 900, 2125)]
+            return [spike(ofsset + 250, 2125), spike(ofsset + 380, 2125),
+                    spike(ofsset + 510, 2125), spike(ofsset + 640, 2125),
+                    spike(ofsset + 770, 2125), spike(ofsset + 900, 2125)]
 

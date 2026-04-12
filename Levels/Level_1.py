@@ -57,15 +57,14 @@ def level1(screen):
     # camera_y = 0
     lose = False
     # Niveau 1 = col 0 (x 0-1079), niveau 2 = col 1 (x 1080-2159), niveau 3 = col 2 (x 2160-3239)
-    LEVEL_X_MIN = {1: 0, 2: 1080, 3: 2160}
-    LEVEL_X_MAX = {1: 1080, 2: 2160, 3: 3240}
-    LEVEL_SPAWN_X = {1: 200, 2: 1280, 3: 2360}  # spawn x au bord gauche de chaque niveau
-    LEVEL_SPAWN_Y = 2125
-
+    level_x_min= {1: 0, 2: 1080, 3: 2160}
+    level_x_max = {1: 1080, 2: 2160, 3: 3240}
+    level_spawn_x = {1: 200, 2: 1280, 3: 2360}  # spawn x au bord gauche de chaque niveau
+    #transition entre levels
     transitioning = False
     fading_in = False
     fading_out = False
-    fade_alpha = 0
+    fade = 0
     fade_surface = pygame.Surface((SCREEN_W, SCREEN_H))
     fade_surface.fill((0, 0, 0))
 
@@ -80,18 +79,19 @@ def level1(screen):
                 game.pressed[event.key] = True
                 if event.key == pygame.K_e:
                     game.throw_trash_instant()
-                if event.key == pygame.K_p:  # ← déplacé ici
+                if event.key == pygame.K_p:
                     timer.set_pause()
                     if timer.paused:
                         game.pressed = {}
-                if event.key == pygame.K_r and timer.finished:  # ← déplacé ici
+                #restart
+                if event.key == pygame.K_r and timer.finished:
                     timer.restart()
                     game.__init__()
                     lose = False
                     transitioning = False
                     fading_in = False
                     fading_out = False
-                    fade_alpha = 0
+                    fade = 0
 
             elif event.type == pygame.KEYUP:
                 game.pressed[event.key] = False
@@ -110,7 +110,22 @@ def level1(screen):
                 game.player.move_left()
             if game.pressed.get(pygame.K_SPACE):
                 game.player.jump()
+                # Limite droite du niveau actuel (ex: 1080 pour le niv 1)
+                current_limit = game.level * 1080
+                if not lose and not timer.paused:
+                    if game.pressed.get(pygame.K_d):#bloquage par niveau
+                        if game.goal > 0:
+                            if game.player.world_x < current_limit - 100:
+                                game.player.move_right()
+                        else:
+                            # niveau suivant
+                            game.player.move_right()
 
+                # Détection du passage de niveau
+                if game.player.world_x >= current_limit:
+                    res = game.next_lvl()
+                    if res == "victory":
+                        lose = True
 
         # -------- Physics (DO NOT CHANGE THE ORDER) --------
         # Reset on_ground at start of frame
@@ -125,10 +140,10 @@ def level1(screen):
         game.update_projectile()  # advance projectile physics every frame
 
         # -------- Clamp player to world edges --------
-        # Bloque le joueur dans la colonne de son niveau tant que goal > 0
+        # Bloque le joueur dans la colonne de son niveau tant que goal n'est pas atteint
         game.player.world_x = max(
-            LEVEL_X_MIN[game.level] + 75,
-            min(LEVEL_X_MAX[game.level] - 75, game.player.world_x)
+            level_x_min[game.level] + 75,
+            min(level_x_max[game.level] - 75, game.player.world_x)
         )
         game.player.world_y = max(0, min(WORLD_H - 30, game.player.world_y))
         # -------- Camera deadzone scrolling --------
@@ -139,20 +154,20 @@ def level1(screen):
         game.try_pickup_trash()
         game.damage()
 
-        # Gravité des déchets sur les plateformes
+        # #gravity on trash & plat /gravité des déchets sur les plateformes
         for trash in game.all_trash:
             trash.apply_gravity(game.platforms, WORLD_H)
 
-        # Déclenchement transition quand goal == 0
+        # transition quand goal atteint
         if game.goal == 0 and not transitioning and not lose:
             transitioning = True
             fading_in = True
 
-        # Animation fondu
+        # Animation fondu/fade
         if transitioning:
             if fading_in:
-                fade_alpha = min(255, fade_alpha + 8)
-                if fade_alpha >= 255:
+                fade = min(255, fade + 8)
+                if fade >= 255:
                     fading_in = False
                     fading_out = True
                     result = game.next_lvl()
@@ -160,14 +175,13 @@ def level1(screen):
                         lose = True
                         transitioning = False
                     else:
-                        game.player.world_x = LEVEL_SPAWN_X[game.level]
+                        game.player.world_x = level_spawn_x[game.level]
             elif fading_out:
-                fade_alpha = max(0, fade_alpha - 8)
-                if fade_alpha <= 0:
+                fade = max(0, fade - 8)
+                if fade <= 0:
                     fading_out = False
                     transitioning = False
-
-        # -------- Check win/lose --------
+        # check win/lose
         if game.player.health <= 0 and not lose:
             lose = True
             game.pressed = {}
@@ -177,11 +191,12 @@ def level1(screen):
         game.draw_background(screen, bg, COLS, ROWS, CELL_W, CELL_H, SCREEN_W, SCREEN_H)
         game.draw_objects(screen)
         game.draw_ui(screen, lose)
+        #starts the timer
         timer.update()
         timer.display_timer(screen)
         timer.display_pause(screen)
         timer.display_game_over(screen)  # s'affiche si timer.finished = True
-
+        #restart and display win/lose
         if lose and game.level >= 3 and game.goal == 0:
             w, h = screen.get_size()
             overlay = pygame.Surface((w, h), pygame.SRCALPHA)
@@ -194,9 +209,9 @@ def level1(screen):
             sub_txt = font_sub.render("Press R to restart", True, (59, 113, 128))
             screen.blit(sub_txt, sub_txt.get_rect(center=(w // 2, h // 2 + 60)))
 
-        # Gestion touche R pour restart
-        if fade_alpha > 0:
-            fade_surface.set_alpha(fade_alpha)
+        # gestion touche R pour restart
+        if fade > 0:
+            fade_surface.set_alpha(fade)
             screen.blit(fade_surface, (0, 0))
         pygame.display.flip()
 

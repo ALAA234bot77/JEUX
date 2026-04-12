@@ -139,16 +139,27 @@ class Timer:
 
         #if 30 sec remaining timer becomes red
         if self.remaining <= 30 :# si il reste que 30sec les chiffres du timer sont rouge
-            color = (143, 25, 21)#rouge en rgb/red
+            color = (226, 75, 74)#rouge en rgb/red
         else:
-            color = (245, 245, 245)#blanc sinon/white
+            color = (224, 232, 240)
 
         # Crée la surface de texte "mm.ss"
         #create the surface of the txt
-        surface = self.font.render(text, True, color)
+        font_t = pygame.font.SysFont("consolas", 50, True)
+        surf = font_t.render(text, True, color)
+        w = surf.get_width() + 30
+        h = surf.get_height() + 22
 
-        # place le timer en haut à gauche
-        screen.blit(surface, (950, 12))
+        # Fond
+        bg = pygame.Surface((w, h), pygame.SRCALPHA)
+        bg.fill((0, 0, 0, 140))
+        screen.blit(bg, (screen.get_width() - w - 12, 12))
+
+        # Bordure bleue
+        pygame.draw.rect(screen, (26, 58, 106),(screen.get_width() - w - 12, 12, w, h), 1, border_radius=6)
+
+        # Texte
+        screen.blit(surf, (screen.get_width() - surf.get_width() - 26, 19))
 
     #fovtion affiche le bouton pause
     #function display pause bouton
