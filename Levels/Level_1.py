@@ -1,5 +1,6 @@
 import pygame
 from classes.game import Game
+from classes.timer import Timer
 from classes.platform import Platform, MovingPlatform
 
 """
