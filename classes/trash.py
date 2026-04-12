@@ -22,6 +22,9 @@ class Trash(pygame.sprite.Sprite):
         elif trash_type == "glass":
             self.image = pygame.Surface((30, 55))
             self.image.fill((0, 200, 200))    # cyan = bouteille
+        elif trash_type == "paper":
+            self.image = pygame.Surface((50, 35))
+            self.image.fill((255, 220, 0))
         elif trash_type == "clothing":
             self.image = pygame.Surface((50, 40))
             self.image.fill((200, 0, 200))    # violet = t-shirt

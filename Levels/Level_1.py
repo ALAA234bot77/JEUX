@@ -89,6 +89,7 @@ def level1(screen):
         if game.player.health <= 0:
             lose = True
         if game.next_lvl() == 'Victory':
+            game.level = 1
             lose = True
 
         # -------- Draw --------
