@@ -11,10 +11,6 @@ def get_font(size):
 
 def main_menu():
     pygame.init()
-    pygame.mixer.init()
-    pygame.mixer.music.load("asset/sound/main_menu_song.mp3")
-    pygame.mixer.music.set_volume(0.5)
-    pygame.mixer.music.play(-1)  # -1 for infinite loop
     screen = pygame.display.set_mode((1080, 720))
     background_raw = pygame.image.load("asset/bg_2_1.jpg")
     background = pygame.transform.scale(background_raw, (1080, 720))
@@ -44,13 +40,12 @@ def main_menu():
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if play_button.checkForInput(menu_mouse_pos):
-                    pygame.mixer.music.stop()
                     running = False
                     Level_1.level1(screen)
                     return
                 if credits_button.checkForInput(menu_mouse_pos):
                     running = False
-                    credits()
+                    #credits
                     pygame.quit()
                     return
                 if quit_button.checkForInput(menu_mouse_pos):
@@ -61,28 +56,3 @@ def main_menu():
 
         pygame.display.update()
 
-def credits():
-    SCREEN = pygame.display.set_mode((1080, 720))  # ← outside the loop
-    while True:
-        CREDITS_MOUSE_POS = pygame.mouse.get_pos()
-
-        SCREEN.fill("white")
-
-        CREDITS_TEXT = get_font(20).render("TO DO", True, "Black")
-        CREDITS_RECT = CREDITS_TEXT.get_rect(center=(280, 100))
-        SCREEN.blit(CREDITS_TEXT, CREDITS_RECT)
-
-        CREDITS_BACK = Button(image=None, pos=(640, 460), text_input="BACK", font=get_font(75), base_color="Black", hovering_color="Green")
-
-        CREDITS_BACK.changeColor(CREDITS_MOUSE_POS)
-        CREDITS_BACK.update(SCREEN)
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if CREDITS_BACK.checkForInput(CREDITS_MOUSE_POS):
-                    main_menu()
-
-        pygame.display.update()
