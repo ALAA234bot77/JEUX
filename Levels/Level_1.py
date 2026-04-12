@@ -1,6 +1,5 @@
 import pygame
 from classes.game import Game
-from classes.timer import Timer
 from classes.platform import Platform, MovingPlatform
 
 """
@@ -18,7 +17,7 @@ def draw_arc_preview(screen, game, mouse_pos):  # ← NEW
 
 
 def draw_bin_highlight(screen, game, mouse_pos):  # ← NEW
-
+    
     aimed = game.get_aimed_bin(mouse_pos)
     if aimed is None:
         return
@@ -33,6 +32,10 @@ def draw_bin_highlight(screen, game, mouse_pos):  # ← NEW
     label = font_s.render(aimed.bin_type, True, colour)
     screen.blit(label, (sx + w // 2 - label.get_width() // 2, sy - 22))
 """
+
+
+
+
 
 def level1(screen):
     clock = pygame.time.Clock()
@@ -307,6 +310,7 @@ def level1(screen):
         clock.tick(60)"""
 
 
+
 """# Start the game
 menu_choice = main_menu.main_menu(screen)
 
@@ -320,6 +324,7 @@ while menu_choice == "credits":
     elif credits_choice == "quit":
         pygame.quit()
         exit()"""
+
 
 """running = True
 camera_x = 0
@@ -486,6 +491,7 @@ while running:
 
     pygame.display.flip()
     clock.tick(60)"""
+
 
 
 

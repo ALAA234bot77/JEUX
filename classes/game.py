@@ -21,7 +21,7 @@ class Game:
         self.score = 0
         self.lives = 3 # plus utile mais je garde au cas ou quelqu'un veille re utiliser des truc que j'ai passer en commentaire
         self.level = 1
-        self.goal = 0
+        self.goal = 100
         self.carrying = False
         self.carried_trash_type = None
         self.carried_trash_image = None
@@ -138,50 +138,29 @@ class Game:
             self._draw_arc_preview(screen, mouse_pos)
             self._draw_bin_highlight(screen, mouse_pos)
 
-    def draw_ui(self, screen, lose=False):
-        blue = (55, 113, 184)  # bleu principal
-        white = (224, 232, 240)  # texte clair
 
-        # coeurs / hearth
-        heart_img = pygame.transform.scale(self.player.health_image, (110, 44))
-        screen.blit(heart_img, (12, 12))
-        #score(under the heearth)
-        font_score = pygame.font.SysFont("consolas", 20, True)
-        # Fond du score
-        score_txt = f"Score : {self.score}"
-        score_surf = font_score.render(score_txt, True, white)
-        score_w = score_surf.get_width() + 16
-        score_bg = pygame.Surface((score_w, 26), pygame.SRCALPHA)
-        score_bg.fill((0, 0, 0, 110))
-        screen.blit(score_bg, (12, 60))
+    def draw_ui(self,screen,lose=False):
+        font = pygame.font.SysFont("Arial", 20)
 
-        # Barre bleue gauche
-        pygame.draw.rect(screen, blue, (12, 60, 3, 26))
-        screen.blit(score_surf, (20, 63))# Texte score
+        self.player.update_health_bar()
+        screen.blit(pygame.transform.scale(self.player.health_image, (120, 50)), (10, 50))
+
+        score_text = font.render(f"Score: {self.score}", True, (255, 255, 255))
+        screen.blit(score_text, (10, 10))
 
         if self.carrying:
-            font_carry = pygame.font.SysFont("consolas", 18, True)
+            carry_text = font.render(f"Carrying : {self.carried_trash_type}", True, (255, 255, 0))
+            screen.blit(carry_text, (10, 90))
 
-            txt_surf = font_carry.render("You are carrying : ", True, (133, 183, 235))
-            type_surf = font_carry.render(self.carried_trash_type, True, white)
+        if self.player.health == 0:
+            end_font = pygame.font.SysFont(None, 80)
+            end_text = end_font.render("Game Over", True, (255, 0, 0))
+            screen.blit(end_text, (450, 350))
 
-            total_w = 14 + txt_surf.get_width() + type_surf.get_width() + 14
-            bg_carry_h = 32
-            bg_carry_x = (screen.get_width() - total_w) // 2
-            bg_carry_y = 20
-
-            # Fond / bg carry
-            badge_bg = pygame.Surface((total_w, bg_carry_h), pygame.SRCALPHA)
-            badge_bg.fill((10, 20, 40, 210))
-            screen.blit(badge_bg, (bg_carry_x, bg_carry_y))
-            # Bordure bleue
-            pygame.draw.rect(screen, blue, (bg_carry_x, bg_carry_y, total_w, bg_carry_h), 1, border_radius=0)
-            # Point bleu/blue point
-            pygame.draw.circle(screen, blue, (bg_carry_x + 10, bg_carry_y + bg_carry_h // 2), 5)
-            # text carry
-            text_y = bg_carry_y + (bg_carry_h - txt_surf.get_height()) // 2
-            screen.blit(txt_surf, (bg_carry_x + 20, text_y))
-            screen.blit(type_surf, (bg_carry_x + 20 + txt_surf.get_width(), text_y))
+        if lose and self.next_lvl() == "victory":
+            win_font = pygame.font.SysFont(None, 80)
+            win_text = win_font.render("Victory!", True, (0, 0, 255))
+            screen.blit(win_text, (450, 350))
 
 
         #arc throw moved from main
@@ -257,26 +236,6 @@ class Game:
         self.proj_world_x += self.proj_vx
         self.proj_world_y += self.proj_vy
 
-        def platform_spawn(self):
-            self.platforms.empty()  # On vide pour éviter les doublons
-            offset = (self.level - 1) * 1080
-            positions = self.PLATFORMS_BY_LEVEL.get(self.level, [])
-
-            for entry in positions:
-                if isinstance(entry, tuple):
-                    x_relative, y = entry
-                    platform = Platform(self, x=offset + x_relative, y=y)
-                elif isinstance(entry, dict):
-                    platform = MovingPlatform(
-                        self,
-                        x=offset + entry["x"],
-                        y=entry["y"],
-                        target_x=offset + entry["target_x"],  # plateforme au bon endroit
-                        target_y=entry["target_y"],
-                        speed=entry.get("speed", 2)
-                    )
-                self.platforms.add(platform)
-
         # Bin collision
         for bin_obj in self.all_bins:
             if (abs(self.proj_world_x - bin_obj.rect.centerx) < 45 and
@@ -284,12 +243,12 @@ class Game:
                 if self.carried_trash_type == bin_obj.bin_type:
                     self.score += 1
                     self.goal -= 1
-                    print(f"✅ Bravo ! Score : {self.score}")
+                    print(f"✅ congrats ! Score : {self.score}")
                 else:
                     self.goal -= 1
                     self.player.health -= 1
                     self.player.update_health_bar()
-                    print(f"❌ Mauvaise poubelle !")
+                    print(f"❌ Wrong bin !")
                 self.carrying = False
                 self.carried_trash_type = None
                 self.carried_trash_image = None
@@ -301,7 +260,7 @@ class Game:
         if (self.proj_world_y > floor_y or
                 self.proj_world_x < 0 or
                 self.proj_world_x > 3 * 1080):
-            print("💨 Raté — retour en main")
+            print("💨 missed !")
             self.throw_state = "idle"  # trash stays in hand, player can aim again
 
     def get_trajectory_points(self, mouse_pos, steps=55):  # ← NEW
@@ -370,60 +329,60 @@ class Game:
         screen.blit(img, (sx, sy))
 
 
+# ─────────────────────── TRASH ────────────────────────────────────────────────
     # generate all the trash for a lvl, add some trash to the list if you want more trash
     def create_trash(self):
-        ofsset = (self.level - 1) * 1080  # origin : 0, 1080 ou 2160
         if self.level == 1:
-            self.goal = 4
+            self.goal = 4 # nb de déchet a récupérer pour le lvl
             return [
-                Trash(ofsset + 300, 2125, "recyclable"),
-                Trash(ofsset + 500, 2125, "menager"),
-                Trash(ofsset + 600, 2125, "recyclable"),
-                Trash(ofsset + 900, 2125, "menager"),
+                Trash(400, 2100, "recyclable"),
+                Trash(1250, 1585, "menager"),
+                Trash(2000, 1975, "menager"),
+                Trash(2680, 1585, "recyclable"),
+                #(2550, 1600),
+                #(1250, 1600),
             ]
         elif self.level == 2:
             self.goal = 4
             return [
-                Trash(ofsset + 300, 2125, "recyclable"),
-                Trash(ofsset + 500, 2125, "menager"),
-                Trash(ofsset + 700, 2125, "compost"),
-                Trash(ofsset + 900, 2125, "papier"),
+                Trash(300, 1825, "recyclable"),
+                Trash(1200, 1945, "menager"),
+                Trash(1950, 1825, "compost"),
+                Trash(2300, 1845, "paper"),
             ]
         elif self.level == 3:
             self.goal = 6
             return [
-                Trash(ofsset + 200, 2125, "recyclable"),
-                Trash(ofsset + 380, 2125, "menager"),
-                Trash(ofsset + 520, 2125, "compost"),
-                Trash(ofsset + 660, 2125, "papier"),
-                Trash(ofsset + 800, 2125, "verre"),
-                Trash(ofsset + 940, 2125, "vetement"),
+                Trash(900, 1845, "recyclable"),
+                Trash(1050, 1705, "menager"),
+                Trash(2250, 1825, "compost"),
+                Trash(2050, 1705, "paper"),
+                Trash(2850, 1845, "glass"),
+                Trash(2950, 1705, "clothing"),
             ]
 
     def create_bins(self):
-        ofsset = (self.level - 1) * 1080 # position adaptated to the level
         if self.level == 1:
             return [
-                Bin(ofsset + 100, 2125, "recyclable"),
-                Bin(ofsset + 180, 2125, "menager"),
+                Bin(150, 2100,"recyclable"),
+                Bin(3100, 2100,"menager"),
             ]
         elif self.level == 2:
             return [
-                Bin(ofsset + 80, 2125, "recyclable"),
-                Bin(ofsset + 160, 2125, "menager"),
-                Bin(ofsset + 240, 2125, "compost"),
-                Bin(ofsset + 320, 2125, "papier"),
+                Bin(150, 2100, "recyclable"),
+                Bin(1300, 1845, "menager"),
+                Bin(2200, 1945, "compost"),
+                Bin(3100, 1955, "paper"),
             ]
         elif self.level == 3:
             return [
-                Bin(ofsset + 60, 2125, "recyclable"),
-                Bin(ofsset + 130, 2125, "menager"),
-                Bin(ofsset + 200, 2125, "compost"),
-                Bin(ofsset + 270, 2125, "papier"),
-                Bin(ofsset + 340, 2125, "verre"),
-                Bin(ofsset + 410, 2125, "vetement"),
+                Bin(150, 2100, "recyclable"),
+                Bin(1250, 1825, "menager"),
+                Bin(1900, 1845, "compost"),
+                Bin(3050, 1825, "paper"),
+                Bin(1150, 1965, "glass"),
+                Bin(3150, 1845, "clothing"),
             ]
-
 
     # ========== NEW VERSION (currently used) ==========
     def update_trash_visibility(self, screen_w=1080):
@@ -469,42 +428,30 @@ class Game:
                     self.score += 1
                     self.goal -= 1
                     print(self.goal)
-                    print(f"✅ Bravo ! Score : {self.score}")
+                    print(f"✅ Congrats ! Score : {self.score}")
                 else:
                     self.goal -= 1
                     print(self.goal)
                     self.player.health -= 1
                     self.player.update_health_bar()
-                    print(f"❌ Mauvaise poubelle ! Vies : {self.player.health}")
+                    print(f"❌ Wrong bin ! Lives : {self.player.health}")
 
                 self.carrying = False
                 self.carried_trash_type = None
                 return
 
-    def next_lvl(self):
-        self.level += 1
-        # if we finish the last level
-        if self.level > 3:
-            self.level = 3
-            return 'victory'
-        #else we change level
-        self.all_trash = self.create_trash()
-        self.all_bins = self.create_bins()
-        self.all_spike = self.create_spike()
-        self.platforms.empty()
-        self.platform_spawn()
-        self.player.health = 3
-        self.player.update_health_bar()
-        self.carrying = False
-        self.carried_trash_type = None
-        self.carried_trash_image = None
-        new_start_x = (self.level - 1) * 1080 + 100 # new start for level +1
-        self.player.world_x = new_start_x
-        self.player.world_y = 2125
-        self.camera_x = (self.level - 1) * 1080
-        print(f"Passage au Niveau {self.level}, Position X: {self.player.world_x}")
-        return "Next"
 
+    def next_lvl(self):
+        if self.goal == 0:
+            self.level += 1
+            self.all_trash = self.create_trash()
+            self.all_bins = self.create_bins()
+            self.all_spike = self.create_spike()
+            self.player.health = 3
+            self.player.update_health_bar()
+        if self.level == 4:
+            self.goal = 5
+            return 'victory'
 
 
 
@@ -513,67 +460,159 @@ class Game:
 
     # If you want to add a STATIC platform, simply put his coordinates in a tuple right here. You don't have to modify anything else.
     # If you want to add a MOVING platform, put in a dictionary from which coordinated to which you want it to move
-
     PLATFORMS_BY_LEVEL = {
         1: [
-            (50, 250),
-            (300, 1980),
-            (600, 1920),
-            {"x": 600, "y": 1780, "target_x": 750, "target_y": 1780, "speed": 2},
-        ],
+            (900, 2000),
+            (1300, 1970),
+            (1800, 2010),
+
+            (2200,1600),
+            (2550,1580),
+
+            (1250,1600),
+            {"x": 1750, "y": 1660, "target_x": 2000, "target_y": 1660, "speed": 1},
+            {"x": 1500, "y": 1940, "target_x": 1500, "target_y": 1650, "speed": 2},
+
+            # ── Col 1 ──
+
+            {"x": 2000, "y": 1960, "target_x": 2650, "target_y": 1960, "speed": 1.5},
+            (2800, 2000)
+
+           # (2870, 2010),
+
+
+    ],
         2: [
-            (800, 1260),
-            (450, 1230),
-            (200, 1130),
-            {"x": 600, "y": 980, "target_x": 1100, "target_y": 980, "speed": 2},
+            # ── Col 0 ──
+            (850, 2010),
+            (1200, 1970),  # trash here
+            (1550, 2010),
+            # upper layer
+            (950, 1850),  # trash here
+            (1300, 1870),  # bin here
+            # moving
+            {"x": 600, "y": 2070, "target_x": 1000, "target_y": 2070, "speed": 2},
+            {"x": 1150, "y": 1800, "target_x": 1150, "target_y": 1650, "speed": 2},
+
+            # ── Col 1 ──
+            (1850, 2000),
+            (2200, 1970),  # bin here
+            (2500, 2010),
+            # upper layer col 1
+            (1950, 1850),  # trash here
+            (2300, 1870),
+            # moving col 1
+            {"x": 1700, "y": 2070, "target_x": 2100, "target_y": 2070, "speed": 2},
+            {"x": 2100, "y": 1800, "target_x": 2450, "target_y": 1800, "speed": 3},
+
+            # ── Col 2 — sparse ──
+            (2800, 2000),
+            (3100, 1980),  # bin here
+            {"x": 2700, "y": 2070, "target_x": 3100, "target_y": 2070, "speed": 2},
+
         ],
         3: [
-            (800, 540),
-            (450, 510),
-            (200, 410),
-            {"x": 600, "y": 260, "target_x": 1100, "target_y": 260, "speed": 3},
-        ],
+            # ── Col 0 ──
+            (800, 2020),
+            (1150, 1990),
+            (1500, 2020),
+            # upper layer
+            (900, 1870),  # trash here
+            (1250, 1850),  # bin here
+            (1450, 1870),
+            # top layer
+            (1050, 1730),  # trash here
+            # moving col 0
+            {"x": 600, "y": 2070, "target_x": 950, "target_y": 2070, "speed": 2},
+            {"x": 1100, "y": 1810, "target_x": 1100, "target_y": 1660, "speed": 2},
+            {"x": 1350, "y": 1720, "target_x": 1600, "target_y": 1720, "speed": 3},
+
+            # ── Col 1 ──
+            (1800, 2020),
+            (2150, 1990),
+            (2500, 2020),
+            # upper layer
+            (1900, 1870),  # bin here
+            (2250, 1850),  # trash here
+            (2450, 1870),
+            # top layer
+            (2050, 1730),  # trash here
+            # moving col 1
+            {"x": 1650, "y": 2070, "target_x": 2000, "target_y": 2070, "speed": 2},
+            {"x": 2100, "y": 1800, "target_x": 2450, "target_y": 1800, "speed": 3},
+            {"x": 2200, "y": 1660, "target_x": 2200, "target_y": 1520, "speed": 2},
+
+            # ── Col 2 ──
+            (2750, 2020),
+            (3050, 1990),
+            (3150, 2020),
+            # upper layer
+            (2850, 1870),  # trash here
+            (3050, 1850),  # bin here
+            (3150, 1870),
+            # top layer
+            (2950, 1730),  # trash here
+            # moving col 2
+            {"x": 2600, "y": 2070, "target_x": 2950, "target_y": 2070, "speed": 2},
+            {"x": 2950, "y": 1800, "target_x": 3150, "target_y": 1800, "speed": 3},
+            {"x": 3050, "y": 1660, "target_x": 3050, "target_y": 1520, "speed": 2},
+
+        ]
     }
 
     def platform_spawn(self):
-        self.platforms.empty()
-        offset = (self.level - 1) * 1080 #to keep the pp in the same level(calculate the range where the pp can displace by level)
+
+        # Look up the platform positions for the current level (liste vide si niveau inconnu)
         positions = self.PLATFORMS_BY_LEVEL.get(self.level, [])
 
         for entry in positions:
             if isinstance(entry, tuple):
-                px, py = entry
-                # On ajoute l'offset 'o' pour placer la plateforme dans le bon niveau
-                platform = Platform(self, x=offset + px, y=py )
+                x, y = entry
+                platform = Platform(self, x=x, y=y)
             elif isinstance(entry, dict):
+                # Moving platform — unpack all parameters from the dict
                 platform = MovingPlatform(
                     self,
-                    x= offset + entry["x"],
+                    x=entry["x"],
                     y=entry["y"],
-                    target_x= offset + entry["target_x"],
+                    target_x=entry["target_x"],
                     target_y=entry["target_y"],
-                    speed=entry.get("speed", 2)
+                    speed=entry.get("speed", 2),  # Default speed = 2 if not specified
+                    width=entry.get("width", 200),  # Default width = 200 if not specified
+                    height=entry.get("height", 40)  # Default height = 40 if not specified
                 )
+
             self.platforms.add(platform)
 
     def check_platform_collision(self):
-        # on crée un rectangle imaginaire sous les pieds du joueur pour la détection
-        player_feet_y = int(self.player.world_y)
-        player_x = int(self.player.world_x)
+        # Check if the player is actually on a platform or something
+
+        # Build a rect representing the player's position in WORLD coordinates
+        player_rect = self.player.rect.copy()
+        player_rect.centerx = int(self.player.world_x)     # World X center of the player
+        player_rect.bottom = int(self.player.world_y)      # World Y feet of the player
 
         for platform in self.platforms:
-            # Si le joueur tombe et que ses pieds sont au niveau du haut de la plateforme
-            if (self.player.jump_velocity >= 0 and
-                platform.rect.top <= player_feet_y <= platform.rect.top + 15 and
-                platform.rect.left < player_x < platform.rect.right):
-                self.player.world_y = platform.rect.top
-                self.player.jump_velocity = 0
-                self.player.on_ground = True
+            # Check if the player's feet are within the vertical landing zone of the platform
+            if (player_rect.bottom >= platform.rect.top - 5 and
+                    player_rect.bottom <= platform.rect.top + 15 and
+                    player_rect.right > platform.rect.left + 5 and
+                    player_rect.left < platform.rect.right - 5):
 
-                if isinstance(platform, MovingPlatform):
-                    self.player.world_x += platform.delta_x
-                    self.player.world_y += platform.delta_y
-                return True
+                # Only snap if the player is falling (jump_velocity > 0)
+                if self.player.jump_velocity > 0:
+                    self.player.world_y = platform.rect.top
+                    self.player.jump_velocity = 0
+                    self.player.on_ground = True
+
+                    if isinstance(platform, MovingPlatform):
+                        self.player.world_x += platform.delta_x  # Slide player horizontally with platform
+                        self.player.world_y += platform.delta_y
+
+                    return True
+
+                return False
+
         return False
 
 
@@ -595,15 +634,47 @@ class Game:
             if (abs(self.player.world_x - spike.rect.x) > 70)or((self.player.world_y - spike.rect.bottom) > 70):
                 spike.immunity = False
 
-    def create_spike(self):
-        ofsset = (self.level - 1) * 1080
-        if self.level == 1:
-            return [spike(ofsset + 400, 2125), spike(ofsset + 700, 2125)]
-        elif self.level == 2:
-            return [spike(ofsset + 300, 2125), spike(ofsset + 450, 2125),
-                    spike(ofsset + 600, 2125), spike(ofsset + 750, 2125)]
-        elif self.level == 3:
-            return [spike(ofsset + 250, 2125), spike(ofsset + 380, 2125),
-                    spike(ofsset + 510, 2125), spike(ofsset + 640, 2125),
-                    spike(ofsset + 770, 2125), spike(ofsset + 900, 2125)]
 
+    def create_spike(self):
+        if self.level == 1:
+            return [
+                #group 1
+                spike(1100, 2125),
+                spike(1150, 2125),
+
+                #group 2
+                spike(2100, 2125),
+                spike(2200, 2125),
+                spike(2300, 2125),
+                spike(2400, 2125),
+                spike(2500, 2125),
+                spike(2600, 2125),
+                spike(2700, 2125),
+
+            ]
+        elif self.level == 2:
+            return [
+                spike(1050, 2125),
+                spike(1080, 2125),
+                spike(1650, 2125),
+                spike(1680, 2125),
+                spike(2550, 2125),
+
+            ]
+        elif self.level == 3:
+            return [
+                spike(1000, 2125),
+                spike(1030, 2125),
+                spike(1060, 2125),
+                spike(1600, 2125),
+                spike(1630, 2125),
+                spike(2100, 2125),
+                spike(2130, 2125),
+                spike(2550, 2125),
+                spike(2580, 2125),
+                spike(2750, 2125),
+                spike(2780, 2125),
+                spike(3000, 2125),
+                spike(3030, 2125),
+
+            ]
