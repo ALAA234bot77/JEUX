@@ -149,7 +149,7 @@ class Game:
         screen.blit(score_text, (10, 10))
 
         if self.carrying:
-            carry_text = font.render(f"Tu portes : {self.carried_trash_type}", True, (255, 255, 0))
+            carry_text = font.render(f"Carrying : {self.carried_trash_type}", True, (255, 255, 0))
             screen.blit(carry_text, (10, 90))
 
         if self.player.health == 0:
@@ -335,51 +335,53 @@ class Game:
         if self.level == 1:
             self.goal = 4 # nb de déchet a récupérer pour le lvl
             return [
-                Trash(800, 2125,"recyclable"),
-                Trash(1200, 2125,"menager"),
-                Trash(1600, 2125,"recyclable"),
-                Trash(2000, 2125,"menager"),
+                Trash(400, 2100, "recyclable"),
+                Trash(1250, 1585, "menager"),
+                Trash(2000, 1975, "menager"),
+                Trash(2680, 1585, "recyclable"),
+                #(2550, 1600),
+                #(1250, 1600),
             ]
         elif self.level == 2:
             self.goal = 4
             return [
-                Trash(800, 2125,"recyclable"),
-                Trash(1200, 2125,"menager"),
-                Trash(1600, 2125,"compost"),
-                Trash(2000, 2125,"paper"),
+                Trash(300, 1825, "recyclable"),
+                Trash(1200, 1945, "menager"),
+                Trash(1950, 1825, "compost"),
+                Trash(2300, 1845, "paper"),
             ]
         elif self.level == 3:
             self.goal = 6
             return [
-                Trash(800, 2125,"recyclable"),
-                Trash(1200, 2125,"menager"),
-                Trash(1600, 2125,"compost"),
-                Trash(2000, 2125,"paper"),
-                Trash(2400, 2125,"glass"),
-                Trash(2800, 2125,"clothing"),
+                Trash(900, 1845, "recyclable"),
+                Trash(1050, 1705, "menager"),
+                Trash(2250, 1825, "compost"),
+                Trash(2050, 1705, "paper"),
+                Trash(2850, 1845, "glass"),
+                Trash(2950, 1705, "clothing"),
             ]
 
     def create_bins(self):
         if self.level == 1:
             return [
-                Bin(300, 2125,"recyclable"),
-                Bin(500, 2125,"menager"),
+                Bin(150, 2100,"recyclable"),
+                Bin(3100, 2100,"menager"),
             ]
         elif self.level == 2:
             return [
-                Bin(300, 2125,"recyclable"),
-                Bin(500, 2125,"menager"),
-                Bin(700, 2125,"compost"),
-                Bin(900, 2125,"papier"),
+                Bin(150, 2100, "recyclable"),
+                Bin(1300, 1845, "menager"),
+                Bin(2200, 1945, "compost"),
+                Bin(3100, 1955, "paper"),
             ]
         elif self.level == 3:
             return [
-                Bin(300, 2125,"recyclable"),
-                Bin(500, 2125,"menager"),
-                Bin(700, 2125,"compost"),
-                Bin(900, 2125,"paper"),
-                Bin(1100, 2125,"glass"),
-                Bin(1300, 2125,"clothing"),
+                Bin(150, 2100, "recyclable"),
+                Bin(1250, 1825, "menager"),
+                Bin(1900, 1845, "compost"),
+                Bin(3050, 1825, "paper"),
+                Bin(1150, 1965, "glass"),
+                Bin(3150, 1845, "clothing"),
             ]
 
     # ========== NEW VERSION (currently used) ==========
@@ -460,18 +462,100 @@ class Game:
     # If you want to add a MOVING platform, put in a dictionary from which coordinated to which you want it to move
     PLATFORMS_BY_LEVEL = {
         1: [
-            (800, 1980),
-            (450, 1950),
-            (200, 1850),
-            {"x": 600, "y": 1700, "target_x": 1100, "target_y": 1700, "speed": 2},
-            {"x": 1200, "y": 2000, "target_x": 1200, "target_y": 1300, "speed": 2}
-        ],
+            (900, 2000),
+            (1300, 1970),
+            (1800, 2010),
+
+            (2200,1600),
+            (2550,1580),
+
+            (1250,1600),
+            {"x": 1750, "y": 1660, "target_x": 2000, "target_y": 1660, "speed": 1},
+            {"x": 1500, "y": 1940, "target_x": 1500, "target_y": 1650, "speed": 2},
+
+            # ── Col 1 ──
+
+            {"x": 2000, "y": 1960, "target_x": 2650, "target_y": 1960, "speed": 1.5},
+            (2800, 2000)
+
+           # (2870, 2010),
+
+
+    ],
         2: [
-            (800, 1980),
+            # ── Col 0 ──
+            (850, 2010),
+            (1200, 1970),  # trash here
+            (1550, 2010),
+            # upper layer
+            (950, 1850),  # trash here
+            (1300, 1870),  # bin here
+            # moving
+            {"x": 600, "y": 2070, "target_x": 1000, "target_y": 2070, "speed": 2},
+            {"x": 1150, "y": 1800, "target_x": 1150, "target_y": 1650, "speed": 2},
+
+            # ── Col 1 ──
+            (1850, 2000),
+            (2200, 1970),  # bin here
+            (2500, 2010),
+            # upper layer col 1
+            (1950, 1850),  # trash here
+            (2300, 1870),
+            # moving col 1
+            {"x": 1700, "y": 2070, "target_x": 2100, "target_y": 2070, "speed": 2},
+            {"x": 2100, "y": 1800, "target_x": 2450, "target_y": 1800, "speed": 3},
+
+            # ── Col 2 — sparse ──
+            (2800, 2000),
+            (3100, 1980),  # bin here
+            {"x": 2700, "y": 2070, "target_x": 3100, "target_y": 2070, "speed": 2},
 
         ],
         3: [
-            (800, 1980),
+            # ── Col 0 ──
+            (800, 2020),
+            (1150, 1990),
+            (1500, 2020),
+            # upper layer
+            (900, 1870),  # trash here
+            (1250, 1850),  # bin here
+            (1450, 1870),
+            # top layer
+            (1050, 1730),  # trash here
+            # moving col 0
+            {"x": 600, "y": 2070, "target_x": 950, "target_y": 2070, "speed": 2},
+            {"x": 1100, "y": 1810, "target_x": 1100, "target_y": 1660, "speed": 2},
+            {"x": 1350, "y": 1720, "target_x": 1600, "target_y": 1720, "speed": 3},
+
+            # ── Col 1 ──
+            (1800, 2020),
+            (2150, 1990),
+            (2500, 2020),
+            # upper layer
+            (1900, 1870),  # bin here
+            (2250, 1850),  # trash here
+            (2450, 1870),
+            # top layer
+            (2050, 1730),  # trash here
+            # moving col 1
+            {"x": 1650, "y": 2070, "target_x": 2000, "target_y": 2070, "speed": 2},
+            {"x": 2100, "y": 1800, "target_x": 2450, "target_y": 1800, "speed": 3},
+            {"x": 2200, "y": 1660, "target_x": 2200, "target_y": 1520, "speed": 2},
+
+            # ── Col 2 ──
+            (2750, 2020),
+            (3050, 1990),
+            (3150, 2020),
+            # upper layer
+            (2850, 1870),  # trash here
+            (3050, 1850),  # bin here
+            (3150, 1870),
+            # top layer
+            (2950, 1730),  # trash here
+            # moving col 2
+            {"x": 2600, "y": 2070, "target_x": 2950, "target_y": 2070, "speed": 2},
+            {"x": 2950, "y": 1800, "target_x": 3150, "target_y": 1800, "speed": 3},
+            {"x": 3050, "y": 1660, "target_x": 3050, "target_y": 1520, "speed": 2},
 
         ]
     }
@@ -554,22 +638,43 @@ class Game:
     def create_spike(self):
         if self.level == 1:
             return [
-                spike(700, 2125),
-                spike(200, 2125),
+                #group 1
+                spike(1100, 2125),
+                spike(1150, 2125),
+
+                #group 2
+                spike(2100, 2125),
+                spike(2200, 2125),
+                spike(2300, 2125),
+                spike(2400, 2125),
+                spike(2500, 2125),
+                spike(2600, 2125),
+                spike(2700, 2125),
+
             ]
         elif self.level == 2:
             return [
-                spike(700, 2125),
-                spike(800, 2125),
-                spike(900, 2125),
-                spike(750, 2125),
+                spike(1050, 2125),
+                spike(1080, 2125),
+                spike(1650, 2125),
+                spike(1680, 2125),
+                spike(2550, 2125),
+
             ]
         elif self.level == 3:
             return [
-                spike(600, 2125),
-                spike(700, 2125),
-                spike(800, 2125),
-                spike(900, 2125),
                 spike(1000, 2125),
-                spike(1100, 2125),
+                spike(1030, 2125),
+                spike(1060, 2125),
+                spike(1600, 2125),
+                spike(1630, 2125),
+                spike(2100, 2125),
+                spike(2130, 2125),
+                spike(2550, 2125),
+                spike(2580, 2125),
+                spike(2750, 2125),
+                spike(2780, 2125),
+                spike(3000, 2125),
+                spike(3030, 2125),
+
             ]
