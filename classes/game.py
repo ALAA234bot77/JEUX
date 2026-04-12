@@ -364,22 +364,24 @@ class Game:
                 Trash(500, 2100, "menager")
             ]
         elif self.level == 2:
-            self.goal = 4
+            self.goal = 2
             return [
-                Trash(1400, 1800, "recyclable"),
-                Trash(1250, 1400, "menager"),
-                Trash(1670,1700, "compost"),
-                Trash(2400, 1800, "paper"),
+                Trash(400, 2100, "recyclable"),
+                Trash(500, 2100, "menager")
+                #Trash(1400, 1800, "recyclable"),
+                #Trash(1250, 1400, "menager"),
+                #Trash(1670,1700, "compost"),
+                #Trash(2400, 1800, "paper"),"""
             ]
         elif self.level == 3:
             self.goal = 6
             return [
-                Trash(900, 1845, "recyclable"),
-                Trash(1050, 1705, "menager"),
-                Trash(2250, 1825, "compost"),
-                Trash(2050, 1705, "paper"),
-                Trash(2850, 1845, "glass"),
-                Trash(2950, 1705, "clothing"),
+                Trash(100, 2100, "recyclable"),
+                Trash(200, 2100, "menager"),
+                Trash(300, 2100, "compost"),
+                Trash(400, 2100, "paper"),
+                Trash(500, 2100, "glass"),
+                Trash(600, 2100, "clothing"),
             ]
 
     def create_bins(self):
@@ -393,19 +395,22 @@ class Game:
         elif self.level == 2:
             return [
                 Bin(150, 2100, "recyclable"),
-                Bin(200, 1845, "menager"),
-                Bin(2050,1400, "compost"),
-                Bin(1650,1300, "paper")
+                Bin(250, 2100, "menager"),
+                #Bin(150, 2100, "recyclable"),
+                #Bin(200, 1845, "menager"),
+                #Bin(2050,1400, "compost"),
+                #Bin(1650,1300, "paper")"""
             ]
         elif self.level == 3:
             return [
-                Bin(150, 2100, "recyclable"),
-                Bin(1250, 1825, "menager"),
-                Bin(1900, 1845, "compost"),
-                Bin(3050, 1825, "paper"),
-                Bin(1150, 1965, "glass"),
-                Bin(3150, 1845, "clothing"),
+                Bin(1050, 1800, "recyclable"),
+                Bin(1750, 1800, "menager"),
+                Bin(2450, 1800, "compost"),
+                Bin(1050, 1350, "paper"),
+                Bin(1750, 1350, "glass"),
+                Bin(2450, 1350, "clothing"),
             ]
+
 
     # ========== NEW VERSION (currently used) ==========
     def update_trash_visibility(self, screen_w=1080):
@@ -532,7 +537,24 @@ class Game:
         ]
         elif self.level == 3 :
             return[
-                {"x": 500, "y": 1990, "target_x": 2600, "target_y": 1990, "speed": 2}
+                {"x": 500, "y": 1990, "target_x": 2600, "target_y": 1990, "speed": 2},
+                {"x": 2600, "y": 1990, "target_x": 500, "target_y": 1990, "speed": 2},
+                (1000,1800),
+                (1700,1800),
+                (2400,1800),
+
+
+                (200, 2000),
+                (200, 1850),
+                (200,1700),
+                (200,1550),
+
+
+                {"x": 400, "y": 1530, "target_x": 2600, "target_y": 1530, "speed": 2},
+                {"x": 2600, "y": 1530, "target_x": 400, "target_y": 1530, "speed": 2},
+                (1000, 1350),
+                (1700, 1350),
+                (2400, 1350)
 
         ]
 
