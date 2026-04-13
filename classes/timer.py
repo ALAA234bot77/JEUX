@@ -5,7 +5,7 @@ class Timer:
      la pause,le restart et détecte la fin du temps.
     """
     #
-    def __init__(self, total_seconds=300):
+    def __init__(self, total_seconds=600):
         # Durée du timer en secondes 5 min = 300s
         # Duration of the timer 5 min = 300s
         self.total_seconds = total_seconds
