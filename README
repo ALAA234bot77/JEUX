@@ -1,0 +1,35 @@
+#  JEUX
+
+:: Overview
+JEUX is a Python-based game project developed as part of our studies.  
+The goal of this project was to design a simple but structured game, including a main menu, multiple levels, and interactive elements such as buttons, sounds, and graphical assets.
+
+
+:: What the game includes
+The project is built around several core components:
+- A main menu allowing the player to start the game  
+- Multiple levels with different configurations  
+- Interactive buttons for navigation  
+- Sound effects to enhance the experience  
+- A Game Over system  
+- A structured organization of assets and game logic  
+
+
+:: Project structure
+The project is organized to separate logic, assets, and game flow:
+* levels/ Contains level data and configurations
+* assets/ Images, sounds, and visual resources
+* classes/ Game logic and object definitions
+* main.py / Entry point of the game
+* main_menu.py / Handles the main menu
+*buttons.py / Manages button interactions
+
+::Technologie
+*This project was developed using:
+         Python
+::Purpose
+This project allowed me to:
+.Learn how to structure a complete Python project
+.Work with game logic and user interaction
+.Organize code into multiple files and components
+.Improve my overall programming skills
