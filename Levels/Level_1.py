@@ -5,7 +5,7 @@ from classes.platform import Platform, MovingPlatform
 
 def level1(screen):
     clock = pygame.time.Clock()
-    timer = Timer(300)
+    timer = Timer(600)
     SCREEN_W, SCREEN_H = 1080, 720
     pygame.display.set_caption("Trash Cat 67")
 
